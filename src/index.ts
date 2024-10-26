@@ -26,7 +26,12 @@ const start = async () => {
     //     credentials: true
     //   })
     // )
-    app.use(cors())
+    app.use(
+      cors({
+        origin: "*", // Cho phép tất cả các nguồn. Cân nhắc bảo mật khi cấu hình.
+        methods: "GET,POST,PUT,DELETE"
+      })
+    )
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({ extended: true }))
     app.use(cookieParser())
