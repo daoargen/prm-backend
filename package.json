@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "nodemon",
     "build": "rimraf ./dist && tsc && tsc-alias",
+    "prestart": "rimraf ./dist && tsc && tsc-alias",
     "start": "node dist/index.js",
     "production": "node dist/index.js",
     "lint": "eslint .",
