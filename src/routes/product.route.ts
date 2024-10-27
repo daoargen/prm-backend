@@ -11,7 +11,7 @@ const router = express.Router()
  * /api/products:
  *   get:
  *     tags:
- *       - product
+ *       - prm
  *     summary: Api for get products
  *     parameters:
  *       - in: query
@@ -29,6 +29,16 @@ const router = express.Router()
  *         schema:
  *           type: string
  *         description: Keyword to search in product names or descriptions
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *         description: Type of what to get ( product, koifish )
+ *       - in: query
+ *         name: yob
+ *         schema:
+ *           type: string
+ *         description: year of birth
  *     responses:
  *       200:
  *         description: Returns a list of products

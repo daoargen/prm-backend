@@ -14,12 +14,35 @@ import { logNonCustomError } from "~/utils/logNonCustomError.util"
 import fishImageUrlService from "./fishImageUrl.service"
 import koiFishElementService from "./koiFishElement.service"
 
-async function getKoiFishes(pageIndex: number, pageSize: number, keyword: string) {
+async function getKoiFishes(pageIndex: number, pageSize: number, keyword: string, yob: number) {
   try {
     const whereCondition: any = { isDeleted: false }
 
     if (keyword) {
       whereCondition[Op.or] = [{ name: { [Op.like]: `%${keyword}%` } }, { description: { [Op.like]: `%${keyword}%` } }]
+    }
+
+    if (yob) {
+      const destiny = getDestinyByYearOfBirth(yob)
+      console.log(destiny)
+      const element = await Element.findOne({
+        where: {
+          name: destiny,
+          isDeleted: false
+        }
+      })
+      console.log(element)
+      if (element && element.id) {
+        const elementId = element.id
+        const koiFishIdsWithElement = await KoiFishElement.findAll({
+          where: { elementId, isDeleted: false },
+          attributes: ["koiFishId"]
+        }).then((results) => results.map((result) => result.koiFishId))
+
+        whereCondition.id = {
+          [Op.in]: koiFishIdsWithElement
+        }
+      }
     }
 
     const { count, rows: koiFishes } = await KoiFish.findAndCountAll({
@@ -178,10 +201,78 @@ async function deleteKoiFish(id: string) {
   }
 }
 
+function getDestinyByYearOfBirth(yearOfBirth: number): string {
+  type HeavenlyStem = "Giap" | "At" | "Binh" | "Dinh" | "Mau" | "Ky" | "Canh" | "Tan" | "Nham" | "Quy"
+  type EarthlyBranch = "Ty" | "Suu" | "Dan" | "Mao" | "Thin" | "Ti" | "Ngo" | "Mui" | "Than" | "Dau" | "Tuat" | "Hoi"
+
+  const heavenlyStemValues: Record<HeavenlyStem, number> = {
+    Giap: 1,
+    At: 1,
+    Binh: 2,
+    Dinh: 2,
+    Mau: 3,
+    Ky: 3,
+    Canh: 4,
+    Tan: 4,
+    Nham: 5,
+    Quy: 5
+  }
+
+  const earthlyBranchValues: Record<EarthlyBranch, number> = {
+    Ty: 0,
+    Suu: 0,
+    Ngo: 0,
+    Mui: 0,
+    Dan: 1,
+    Mao: 1,
+    Than: 1,
+    Dau: 1,
+    Thin: 2,
+    Ti: 2,
+    Tuat: 2,
+    Hoi: 2
+  }
+
+  const destinyValues = ["Metal", "Water", "Fire", "Earth", "Wood"]
+
+  const heavenlyStems: HeavenlyStem[] = ["Giap", "At", "Binh", "Dinh", "Mau", "Ky", "Canh", "Tan", "Nham", "Quy"]
+  const earthlyBranches: EarthlyBranch[] = [
+    "Ty",
+    "Suu",
+    "Dan",
+    "Mao",
+    "Thin",
+    "Ti",
+    "Ngo",
+    "Mui",
+    "Than",
+    "Dau",
+    "Tuat",
+    "Hoi"
+  ]
+
+  // Tính chỉ số Thiên Can
+  const heavenlyStemIndex = (yearOfBirth - 4) % 10
+
+  // Tính chỉ số Địa Chi
+  const earthlyBranchIndex = (yearOfBirth - 4) % 12
+
+  const heavenlyStem = heavenlyStems[heavenlyStemIndex]
+  const earthlyBranch = earthlyBranches[earthlyBranchIndex]
+
+  let destinyValue = heavenlyStemValues[heavenlyStem] + earthlyBranchValues[earthlyBranch]
+  if (destinyValue > 5) {
+    destinyValue -= 5
+  }
+  console.log(destinyValues[destinyValue - 1])
+  return destinyValues[destinyValue - 1]
+}
+
 export default {
   getKoiFishes,
   getKoiFishById,
   createKoiFish,
   updateKoiFish,
-  deleteKoiFish
+  deleteKoiFish,
+  getDestinyByYearOfBirth
 }

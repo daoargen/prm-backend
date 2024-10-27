@@ -9,8 +9,9 @@ async function getKoiFishes(req: Request, res: Response) {
     const pageIndex = parseInt(req.query.page_index as string) || 1
     const pageSize = parseInt(req.query.page_size as string) || 10
     const keyword = req.query.keyword as string
+    const yob = parseInt(req.query.yob as string)
 
-    const { koiFishes, pagination } = await koiFishService.getKoiFishes(pageIndex, pageSize, keyword)
+    const { koiFishes, pagination } = await koiFishService.getKoiFishes(pageIndex, pageSize, keyword, yob)
     return res.json(responseStatus.responseData200("Get koi fishes successfully!", koiFishes, pagination))
   } catch (error) {
     return res.json(error)

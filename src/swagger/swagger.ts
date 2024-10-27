@@ -31,6 +31,10 @@ const swaggerDocs = (app: Express, PORT: string) => {
         {
           name: "user",
           description: "Operations about user"
+        },
+        {
+          name: "prm",
+          description: "Operations about using for prm"
         }
       ],
       security: [
