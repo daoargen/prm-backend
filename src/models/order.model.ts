@@ -10,20 +10,12 @@ const tableName = "Order"
 
 export const Order = sequelize.define<OrderInstance>(tableName, {
   ...UUIDModel,
-  userId: {
-    type: DataTypes.UUID,
+  phoneNumber: {
+    type: DataTypes.STRING,
     allowNull: false
   },
-  packageId: {
-    type: DataTypes.UUID,
-    allowNull: true
-  },
-  postId: {
-    type: DataTypes.UUID,
-    allowNull: true
-  },
   status: {
-    type: DataTypes.ENUM("PENDING_CONFIRMATION", "COMPLETED", "CANCEL"),
+    type: DataTypes.ENUM("PENDING_CONFIRMATION", "IN TRANSIT", "COMPLETED", "CANCEL"),
     allowNull: false,
     defaultValue: "PENDING_CONFIRMATION"
   },
@@ -34,17 +26,10 @@ export const Order = sequelize.define<OrderInstance>(tableName, {
   ...SQLModel
 })
 
-Order.belongsTo(User, {
-  foreignKey: "userId",
-  as: "user"
-})
-
 export interface OrderAttributes {
   id?: string
-  userId: string
-  packageId: string | null
-  postId: string | null
-  status: "PENDING_CONFIRMATION" | "COMPLETED" | "CANCEL"
+  phoneNumber: string
+  status: "PENDING_CONFIRMATION" | "IN TRANSIT" | "COMPLETED" | "CANCEL"
   totalAmount: number
   isDeleted?: boolean
 }

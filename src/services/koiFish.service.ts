@@ -110,6 +110,21 @@ async function getKoiFishById(id: string) {
     if (!koiFish) {
       throw responseStatus.responseNotFound404("Không tìm thấy cá Koi")
     }
+    const koiFishElements = await KoiFishElement.findAll({
+      where: { koiFishId: koiFish.id, isDeleted: false },
+      attributes: ["koiFishId", "elementId"]
+    })
+    const elementIds = koiFishElements
+      .map((koiFishElement) => koiFishElement.elementId)
+      .filter((elementId): elementId is string => elementId !== undefined)
+    const elements = await Element.findAll({
+      where: { id: elementIds, isDeleted: false },
+      attributes: ["id", "name", "imageUrl"]
+    })
+    const imageUrls = await FishImageUrl.findAll({
+      where: { koiFishId: koiFish.id, isDeleted: false },
+      attributes: ["id", "koiFishId", "imageUrl"]
+    })
     return koiFish
   } catch (error) {
     logNonCustomError(error)

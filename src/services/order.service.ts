@@ -1,11 +1,14 @@
 import { Op } from "sequelize"
 
 import responseStatus from "~/constants/responseStatus"
-import { CreateOrder, UpdateOrder } from "~/constants/type"
+import { CreateOrder, CreateOrderDetail, UpdateOrder } from "~/constants/type"
 import { Order, OrderInstance } from "~/models/order.model"
+import { OrderDetail } from "~/models/orderDetail.model"
 import { calculatePagination } from "~/utils/calculatePagination.utilt"
 import { formatModelDate } from "~/utils/formatTimeModel.util"
 import { logNonCustomError } from "~/utils/logNonCustomError.util"
+
+import orderDetailService from "./orderDetail.service"
 
 async function getOrders(pageIndex: number, pageSize: number, keyword: string) {
   try {
@@ -48,12 +51,49 @@ async function getOrderById(id: string) {
 async function createOrder(newOrder: CreateOrder) {
   try {
     const createdOrder = await Order.create({
-      userId: newOrder.userId,
-      packageId: newOrder.packageId,
-      postId: newOrder.postId,
-      status: newOrder.status,
-      totalAmount: newOrder.totalAmount
+      phoneNumber: newOrder.phoneNumber,
+      status: "PENDING_CONFIRMATION",
+      totalAmount: 0
     })
+    if (!createdOrder.id) {
+      throw responseStatus.responseBadRequest400("Tạo hoá đơn thất bại")
+    }
+    if (!createdOrder.id) {
+      throw responseStatus.responseBadRequest400("Tạo hoá đơn thất bại")
+    }
+
+    // Duyệt qua từng orderDetail để kiểm tra
+    newOrder.orderDetails.map((orderDetail) => {
+      // Kiểm tra type
+      if (orderDetail.type !== "KOIFISH" && orderDetail.type !== "PRODUCT") {
+        throw responseStatus.responseBadRequest400(
+          "Loại sản phẩm không hợp lệ. Chỉ chấp nhận 'KOIFISH' hoặc 'PRODUCT'."
+        )
+      }
+
+      // Kiểm tra koiFishId nếu type là KOIFISH
+      if (orderDetail.type === "KOIFISH" && !orderDetail.koiFishId) {
+        throw responseStatus.responseBadRequest400("Thiếu koiFishId cho sản phẩm loại KOIFISH.")
+      }
+
+      // Kiểm tra productId nếu type là PRODUCT
+      if (orderDetail.type === "PRODUCT" && !orderDetail.productId) {
+        throw responseStatus.responseBadRequest400("Thiếu productId cho sản phẩm loại PRODUCT.")
+      }
+    })
+
+    newOrder.orderDetails.map((orderDetail) => {
+      const newOrderDetail: CreateOrderDetail = {
+        koiFishId: orderDetail.koiFishId,
+        productId: orderDetail.productId,
+        type: orderDetail.type,
+        quantity: orderDetail.quantity
+      }
+      orderDetailService.createOrderDetail(createdOrder.id!, newOrderDetail)
+    })
+
+    createdOrder.totalAmount = await calculateTotalAmountForOrder(createdOrder.id)
+
     return createdOrder
   } catch (error) {
     logNonCustomError(error)
@@ -68,9 +108,7 @@ async function updateOrder(id: string, updatedOrder: UpdateOrder) {
       throw responseStatus.responseNotFound404("Không tìm thấy đơn hàng")
     }
 
-    order.userId = updatedOrder.userId || order.userId
-    order.packageId = updatedOrder.packageId || order.packageId
-    order.postId = updatedOrder.postId || order.postId
+    order.phoneNumber = updatedOrder.phoneNumber || order.phoneNumber
     order.status = updatedOrder.status || order.status
     order.totalAmount = updatedOrder.totalAmount || order.totalAmount
 
@@ -99,10 +137,29 @@ async function deleteOrder(id: string) {
   }
 }
 
+async function calculateTotalAmountForOrder(orderId: string) {
+  try {
+    const orderDetails = await OrderDetail.findAll({
+      where: { orderId },
+      attributes: ["totalPrice"]
+    })
+
+    const totalAmount = orderDetails.reduce((sum, detail) => {
+      return sum + (detail.getDataValue("totalPrice") || 0) // Cộng dồn totalPrice
+    }, 0)
+
+    return totalAmount
+  } catch (error) {
+    logNonCustomError(error)
+    throw error
+  }
+}
+
 export default {
   getOrders,
   getOrderById,
   createOrder,
   updateOrder,
-  deleteOrder
+  deleteOrder,
+  calculateTotalAmountForOrder
 }

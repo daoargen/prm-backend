@@ -44,7 +44,7 @@ export interface PaymentAttributes {
   orderId: string
   amount: number
   payDate: Date
-  payMethod: "CARD" | "CASH"
+  payMethod: "CARD" | "COD"
   payStatus: "PENDING" | "COMPLETED" | "CANCEL"
   isDeleted?: boolean
 }

@@ -156,59 +156,47 @@ export interface UpdateProductCategory {
 }
 
 export interface CreateOrder {
-  userId: string
-  packageId: string | null
-  postId: string | null
-  status: "PENDING_CONFIRMATION" | "COMPLETED" | "CANCEL"
-  totalAmount: number
+  phoneNumber: string
+  orderDetails: CreateOrderDetail[]
 }
 
 export interface UpdateOrder {
-  userId?: string
-  packageId?: string | null
-  postId?: string | null
-  status?: "PENDING_CONFIRMATION" | "COMPLETED" | "CANCEL"
+  phoneNumber?: string
+  status?: "PENDING_CONFIRMATION" | "IN TRANSIT" | "COMPLETED" | "CANCEL"
   totalAmount?: number
 }
 
 export interface CreateOrderDetail {
-  orderId: string
   koiFishId: string | null
   productId: string | null
   type: string
-  unitPrice: number
-  totalPrice: number
+  quantity: number
 }
 
 export interface UpdateOrderDetail {
-  orderId?: string
-  koiFishId?: string | null
-  productId?: string | null
-  type?: string
-  unitPrice?: number
-  totalPrice?: number
+  quantity?: number
 }
 
 export interface CreateProductReview {
-  userId: string
+  phoneNumber: string
   productId: string
   content: string
 }
 
 export interface UpdateProductReview {
-  userId?: string
+  phoneNumber?: string
   productId?: string
   content?: string
 }
 
 export interface CreateFishReview {
-  userId: string
+  phoneNumber: string
   koiFishId: string
   content: string
 }
 
 export interface UpdateFishReview {
-  userId?: string
+  phoneNumber?: string
   koiFishId?: string
   content?: string
 }

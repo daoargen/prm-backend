@@ -11,7 +11,7 @@ const tableName = "ProductReview"
 
 export const ProductReview = sequelize.define<ProductReviewInstance>(tableName, {
   ...UUIDModel,
-  userId: {
+  phoneNumber: {
     type: DataTypes.UUID,
     allowNull: false
   },
@@ -26,11 +26,6 @@ export const ProductReview = sequelize.define<ProductReviewInstance>(tableName, 
   ...SQLModel
 })
 
-ProductReview.belongsTo(User, {
-  foreignKey: "userId",
-  as: "user"
-})
-
 ProductReview.belongsTo(Product, {
   foreignKey: "productId",
   as: "product"
@@ -38,7 +33,7 @@ ProductReview.belongsTo(Product, {
 
 export interface ProductReviewAttributes {
   id?: string
-  userId: string
+  phoneNumber: string
   productId: string
   content: string
   isDeleted?: boolean

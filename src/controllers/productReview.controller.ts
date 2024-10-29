@@ -6,13 +6,13 @@ import productReviewService from "~/services/productReview.service"
 
 async function createProductReview(req: Request, res: Response) {
   try {
-    const { userId, productId, content } = req.body
-    if (!userId || !productId || !content) {
+    const { phoneNumber, productId, content } = req.body
+    if (!phoneNumber || !productId || !content) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }
 
     const dataRequest: CreateProductReview = {
-      userId,
+      phoneNumber,
       productId,
       content
     }

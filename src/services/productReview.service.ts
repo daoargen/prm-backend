@@ -44,7 +44,7 @@ async function getProductReviewById(id: string) {
 async function createProductReview(newProductReview: CreateProductReview) {
   try {
     const createdProductReview = await ProductReview.create({
-      userId: newProductReview.userId,
+      phoneNumber: newProductReview.phoneNumber,
       productId: newProductReview.productId,
       content: newProductReview.content
     })
@@ -62,7 +62,7 @@ async function updateProductReview(id: string, updatedProductReview: UpdateProdu
       throw responseStatus.responseNotFound404("Không tìm thấy đánh giá sản phẩm")
     }
 
-    productReview.userId = updatedProductReview.userId || productReview.userId
+    productReview.phoneNumber = updatedProductReview.phoneNumber || productReview.phoneNumber
     productReview.productId = updatedProductReview.productId || productReview.productId
     productReview.content = updatedProductReview.content || productReview.content
 

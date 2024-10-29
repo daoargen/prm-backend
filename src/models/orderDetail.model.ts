@@ -28,6 +28,10 @@ export const OrderDetail = sequelize.define<OrderDetailInstance>(tableName, {
     type: DataTypes.STRING,
     allowNull: false
   },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   unitPrice: {
     type: DataTypes.FLOAT,
     allowNull: false
@@ -61,6 +65,7 @@ export interface OrderDetailAttributes {
   productId: string | null
   type: string
   unitPrice: number
+  quantity: number
   totalPrice: number
   isDeleted?: boolean
 }

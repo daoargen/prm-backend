@@ -44,7 +44,7 @@ async function getFishReviewById(id: string) {
 async function createFishReview(newFishReview: CreateFishReview) {
   try {
     const createdFishReview = await FishReview.create({
-      userId: newFishReview.userId,
+      phoneNumber: newFishReview.phoneNumber,
       koiFishId: newFishReview.koiFishId,
       content: newFishReview.content
     })
@@ -62,7 +62,7 @@ async function updateFishReview(id: string, updatedFishReview: UpdateFishReview)
       throw responseStatus.responseNotFound404("Không tìm thấy đánh giá cá")
     }
 
-    fishReview.userId = updatedFishReview.userId || fishReview.userId
+    fishReview.phoneNumber = updatedFishReview.phoneNumber || fishReview.phoneNumber
     fishReview.koiFishId = updatedFishReview.koiFishId || fishReview.koiFishId
     fishReview.content = updatedFishReview.content || fishReview.content
 

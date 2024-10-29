@@ -19,9 +19,9 @@ const router = express.Router()
  *           schema:
  *             type: object
  *             properties:
- *               userId:
+ *               phoneNumber:
  *                 type: string
- *                 description: User Id
+ *                 description: Phone number
  *               productId:
  *                 type: string
  *                 description: Product Id

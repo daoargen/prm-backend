@@ -11,8 +11,8 @@ const tableName = "FishReview"
 
 export const FishReview = sequelize.define<FishReviewInstance>(tableName, {
   ...UUIDModel,
-  userId: {
-    type: DataTypes.UUID,
+  phoneNumber: {
+    type: DataTypes.STRING,
     allowNull: false
   },
   koiFishId: {
@@ -26,11 +26,6 @@ export const FishReview = sequelize.define<FishReviewInstance>(tableName, {
   ...SQLModel
 })
 
-FishReview.belongsTo(User, {
-  foreignKey: "userId",
-  as: "user"
-})
-
 FishReview.belongsTo(KoiFish, {
   foreignKey: "koiFishId",
   as: "koiFish"
@@ -38,7 +33,7 @@ FishReview.belongsTo(KoiFish, {
 
 export interface FishReviewAttributes {
   id?: string
-  userId: string
+  phoneNumber: string
   koiFishId: string
   content: string
   isDeleted?: boolean
