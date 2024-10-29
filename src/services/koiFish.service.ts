@@ -4,8 +4,10 @@ import responseStatus from "~/constants/responseStatus"
 import { CreateFishImageUrl, CreateKoiFish, CreateKoiFishElement, UpdateKoiFish } from "~/constants/type"
 import { Element } from "~/models/element.model"
 import { FishImageUrl } from "~/models/fishImageUrl.model"
+import { FishReview } from "~/models/fishReview.model"
 import { KoiFish, KoiFishInstance } from "~/models/koiFish.model"
 import { KoiFishElement } from "~/models/koiFishElement.model"
+import { Supplier } from "~/models/supplier.model"
 import { Variety } from "~/models/variety.model"
 import { calculatePagination } from "~/utils/calculatePagination.utilt"
 import { formatModelDate } from "~/utils/formatTimeModel.util"
@@ -123,9 +125,23 @@ async function getKoiFishById(id: string) {
     })
     const imageUrls = await FishImageUrl.findAll({
       where: { koiFishId: koiFish.id, isDeleted: false },
-      attributes: ["id", "koiFishId", "imageUrl"]
+      attributes: ["id", "imageUrl"]
     })
-    return koiFish
+    const fishReviews = await FishReview.findAll({
+      where: { koiFishId: koiFish.id, isDeleted: false },
+      attributes: ["phoneNumber", "content"]
+    })
+    const supplier = await Supplier.findOne({
+      where: { id: koiFish.supplierId, isDeleted: false },
+      attributes: ["name", "description", "phoneNumber", "email"]
+    })
+    return {
+      ...koiFish.toJSON(),
+      elements: elements,
+      imageUrls: imageUrls,
+      fishReviews: fishReviews,
+      supplier: supplier
+    }
   } catch (error) {
     logNonCustomError(error)
     throw error

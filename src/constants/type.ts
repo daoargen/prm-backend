@@ -116,6 +116,8 @@ export interface CreateProduct {
   stock: number
   price: number
   supplierId: string
+  categoryIds: string[]
+  imageUrls: string[]
 }
 
 export interface UpdateProduct {

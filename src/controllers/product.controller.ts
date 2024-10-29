@@ -45,7 +45,7 @@ async function getProductById(req: Request, res: Response) {
 
 async function createProduct(req: Request, res: Response) {
   try {
-    const { name, description, stock, price, supplierId } = req.body
+    const { name, description, stock, price, supplierId, categoryIds, imageUrls } = req.body
     if (!name || !price || !supplierId) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }
@@ -55,7 +55,9 @@ async function createProduct(req: Request, res: Response) {
       description,
       stock,
       price,
-      supplierId
+      supplierId,
+      categoryIds,
+      imageUrls
     }
 
     const dataResponse = await productService.createProduct(dataRequest)
