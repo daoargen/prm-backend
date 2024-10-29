@@ -33,6 +33,7 @@ const router = express.Router()
  *         name: type
  *         schema:
  *           type: string
+ *         required: true
  *         description: Type of what to get ( product, koifish )
  *       - in: query
  *         name: yob

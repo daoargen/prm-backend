@@ -165,9 +165,7 @@ export interface CreateOrder {
 }
 
 export interface UpdateOrder {
-  phoneNumber?: string
   status?: "PENDING_CONFIRMATION" | "IN TRANSIT" | "COMPLETED" | "CANCEL"
-  totalAmount?: number
 }
 
 export interface CreateOrderDetail {
@@ -236,6 +234,7 @@ export interface createPayment {
 }
 
 export interface UpdatePayment {
+  payMethod: "CARD" | "COD"
   payStatus?: "PENDING" | "COMPLETED" | "CANCEL"
 }
 

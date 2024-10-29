@@ -27,15 +27,13 @@ async function createOrder(req: Request, res: Response) {
 async function editOrder(req: Request, res: Response) {
   try {
     const id = req.params.id
-    const { phoneNumber, status, totalAmount } = req.body
-    if (!id || !phoneNumber || !status || !totalAmount) {
+    const { status } = req.body
+    if (!id) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }
 
     const dataRequest: UpdateOrder = {
-      phoneNumber,
-      status,
-      totalAmount
+      status
     }
 
     const dataResponse = await orderService.updateOrder(id, dataRequest)

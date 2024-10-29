@@ -65,4 +65,35 @@ router.post("/webhook", authMiddleware.verifyToken, PaymentController.completePa
  */
 router.post("/:id/cancel", authMiddleware.verifyToken, PaymentController.cancelPayment)
 
+/**
+ * @swagger
+ * /api/payments/{id}:
+ *   put:
+ *     tags:
+ *       - payment
+ *     summary: Api for update payment
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Payment Id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               payStatus:
+ *                 type: string
+ *                 enum: [PENDING, COMPLETED, CANCEL]
+ *                 description: Payment status
+ *     responses:
+ *       200:
+ *         description: Returns a message
+ */
+router.put("/:id", authMiddleware.verifyToken, PaymentController.updatePayment)
+
 export default router

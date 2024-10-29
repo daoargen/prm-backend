@@ -16,6 +16,10 @@ async function getProducts(req: Request, res: Response) {
     if (!type) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }
+
+    if (!type) {
+      return res.json(responseStatus.responseBadRequest400("Missing required fields"))
+    }
     if (type === "product") {
       const { products, pagination } = await productService.getProducts(pageIndex, pageSize, keyword)
       return res.json(responseStatus.responseData200("Get products successfully!", products, pagination))

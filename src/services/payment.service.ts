@@ -48,6 +48,7 @@ async function updatePayment(id: string, updatedPayment: UpdatePayment) {
     }
 
     // Update các trường
+    payment.payMethod = updatedPayment.payMethod || payment.payMethod
     payment.payStatus = updatedPayment.payStatus || payment.payStatus
 
     await payment.save()

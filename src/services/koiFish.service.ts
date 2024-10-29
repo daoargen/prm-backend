@@ -21,7 +21,11 @@ async function getKoiFishes(pageIndex: number, pageSize: number, keyword: string
     const whereCondition: any = { isDeleted: false }
 
     if (keyword) {
-      whereCondition[Op.or] = [{ name: { [Op.like]: `%${keyword}%` } }, { description: { [Op.like]: `%${keyword}%` } }]
+      whereCondition[Op.or] = [
+        { id: { [Op.like]: `%${keyword}%` } },
+        { name: { [Op.like]: `%${keyword}%` } },
+        { description: { [Op.like]: `%${keyword}%` } }
+      ]
     }
 
     if (yob) {
@@ -135,8 +139,13 @@ async function getKoiFishById(id: string) {
       where: { id: koiFish.supplierId, isDeleted: false },
       attributes: ["name", "description", "phoneNumber", "email"]
     })
+    const variety = await Variety.findOne({
+      where: { id: koiFish.varietyId, isDeleted: false },
+      attributes: ["name", "description"]
+    })
     return {
       ...koiFish.toJSON(),
+      varitety: variety,
       elements: elements,
       imageUrls: imageUrls,
       fishReviews: fishReviews,
@@ -150,6 +159,7 @@ async function getKoiFishById(id: string) {
 
 async function createKoiFish(newKoiFish: CreateKoiFish) {
   try {
+    console.log(newKoiFish)
     const createdKoiFish = await KoiFish.create({
       varietyId: newKoiFish.varietyId,
       name: newKoiFish.name,

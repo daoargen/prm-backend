@@ -7,6 +7,7 @@ import { OrderDetail } from "~/models/orderDetail.model"
 import { Payment } from "~/models/payment.model"
 import { calculatePagination } from "~/utils/calculatePagination.utilt"
 import { formatModelDate } from "~/utils/formatTimeModel.util"
+import { validatePhoneNumber } from "~/utils/isPhoneNumber.util"
 import { logNonCustomError } from "~/utils/logNonCustomError.util"
 
 import { createPayment } from "./../constants/type"
@@ -18,7 +19,7 @@ async function getOrders(pageIndex: number, pageSize: number, keyword: string, p
     const whereCondition: any = { isDeleted: false }
 
     if (keyword) {
-      whereCondition[Op.or] = []
+      whereCondition[Op.or] = [{ id: { [Op.like]: `%${keyword}%` } }]
     }
     if (phoneNumber) {
       whereCondition[Op.or] = [{ phoneNumber: { [Op.like]: `%${phoneNumber}%` } }]
@@ -81,6 +82,7 @@ async function getOrderById(id: string) {
 
 async function createOrder(newOrder: CreateOrder) {
   try {
+    validatePhoneNumber(newOrder.phoneNumber)
     const createdOrder = await Order.create({
       phoneNumber: newOrder.phoneNumber,
       status: "PENDING_CONFIRMATION",
@@ -112,18 +114,20 @@ async function createOrder(newOrder: CreateOrder) {
         throw responseStatus.responseBadRequest400("Thiếu productId cho sản phẩm loại PRODUCT.")
       }
     })
-
-    newOrder.orderDetails.map((orderDetail) => {
-      const newOrderDetail: CreateOrderDetail = {
-        koiFishId: orderDetail.koiFishId,
-        productId: orderDetail.productId,
-        type: orderDetail.type,
-        quantity: orderDetail.quantity
-      }
-      orderDetailService.createOrderDetail(createdOrder.id!, newOrderDetail)
-    })
-
-    createdOrder.totalAmount = await calculateTotalAmountForOrder(createdOrder.id)
+    let totalAmount = 0
+    await Promise.all(
+      newOrder.orderDetails.map(async (orderDetail) => {
+        const newOrderDetail: CreateOrderDetail = {
+          koiFishId: orderDetail.koiFishId === "" ? null : orderDetail.koiFishId,
+          productId: orderDetail.productId === "" ? null : orderDetail.productId,
+          type: orderDetail.type,
+          quantity: orderDetail.koiFishId ? 1 : orderDetail.quantity
+        }
+        const createdOrderDetail = await orderDetailService.createOrderDetail(createdOrder.id!, newOrderDetail)
+        totalAmount += createdOrderDetail.totalPrice
+      })
+    )
+    createdOrder.totalAmount = totalAmount
     await createdOrder.save()
 
     const newPayment: createPayment = {
@@ -148,9 +152,7 @@ async function updateOrder(id: string, updatedOrder: UpdateOrder) {
       throw responseStatus.responseNotFound404("Không tìm thấy đơn hàng")
     }
 
-    order.phoneNumber = updatedOrder.phoneNumber || order.phoneNumber
     order.status = updatedOrder.status || order.status
-    order.totalAmount = updatedOrder.totalAmount || order.totalAmount
 
     await order.save()
     return "Cập nhật đơn hàng thành công"
@@ -177,29 +179,10 @@ async function deleteOrder(id: string) {
   }
 }
 
-async function calculateTotalAmountForOrder(orderId: string) {
-  try {
-    const orderDetails = await OrderDetail.findAll({
-      where: { orderId },
-      attributes: ["totalPrice"]
-    })
-
-    const totalAmount = orderDetails.reduce((sum, detail) => {
-      return sum + (detail.getDataValue("totalPrice") || 0) // Cộng dồn totalPrice
-    }, 0)
-
-    return totalAmount
-  } catch (error) {
-    logNonCustomError(error)
-    throw error
-  }
-}
-
 export default {
   getOrders,
   getOrderById,
   createOrder,
   updateOrder,
-  deleteOrder,
-  calculateTotalAmountForOrder
+  deleteOrder
 }

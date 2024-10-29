@@ -6,6 +6,7 @@ import { Category } from "~/models/category.model"
 import { Product, ProductInstance } from "~/models/product.model"
 import { ProductCategory } from "~/models/productCategory.model"
 import { ProductImageUrl } from "~/models/productImageUrl.model"
+import { ProductReview } from "~/models/productReview.model"
 import { calculatePagination } from "~/utils/calculatePagination.utilt"
 import { formatModelDate } from "~/utils/formatTimeModel.util"
 import { logNonCustomError } from "~/utils/logNonCustomError.util"
@@ -18,8 +19,14 @@ async function getProducts(pageIndex: number, pageSize: number, keyword: string)
     const whereCondition: any = { isDeleted: false }
 
     if (keyword) {
-      whereCondition[Op.or] = [{ name: { [Op.like]: `%${keyword}%` } }, { description: { [Op.like]: `%${keyword}%` } }]
+      whereCondition[Op.or] = [
+        { id: { [Op.like]: `%${keyword}%` } },
+        { name: { [Op.like]: `%${keyword}%` } },
+        { description: { [Op.like]: `%${keyword}%` } }
+      ]
     }
+
+    console.log(keyword)
 
     const { count, rows: products } = await Product.findAndCountAll({
       where: whereCondition,
@@ -76,7 +83,31 @@ async function getProductById(id: string) {
     if (!product) {
       throw responseStatus.responseNotFound404("Không tìm thấy sản phẩm")
     }
-    return product
+    const productCategories = await ProductCategory.findAll({
+      where: { productId: id, isDeleted: false },
+      attributes: ["productId", "categoryId"]
+    })
+    const categoryIds = productCategories
+      .map((productCategory) => productCategory.categoryId)
+      .filter((categoryId): categoryId is string => categoryId !== undefined)
+    const categories = await Category.findAll({
+      where: { id: categoryIds, isDeleted: false },
+      attributes: ["id", "name", "description"]
+    })
+    const imageUrls = await ProductImageUrl.findAll({
+      where: { productId: id, isDeleted: false },
+      attributes: ["id", "productId", "imageUrl"]
+    })
+    const productReviews = await ProductReview.findAll({
+      where: { productId: id, isDeleted: false },
+      attributes: ["phoneNumber", "content"]
+    })
+    return {
+      ...product.toJSON(),
+      categories: categories,
+      imageUrls: imageUrls,
+      productReviews: productReviews
+    }
   } catch (error) {
     logNonCustomError(error)
     throw error
