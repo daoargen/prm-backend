@@ -2,17 +2,21 @@ import { Op } from "sequelize"
 
 import responseStatus from "~/constants/responseStatus"
 import { CreateOrder, CreateOrderDetail, UpdateOrder } from "~/constants/type"
+import { KoiFish } from "~/models/koiFish.model"
 import { Order, OrderInstance } from "~/models/order.model"
 import { OrderDetail } from "~/models/orderDetail.model"
 import { Payment } from "~/models/payment.model"
+import { Product } from "~/models/product.model"
 import { calculatePagination } from "~/utils/calculatePagination.utilt"
 import { formatModelDate } from "~/utils/formatTimeModel.util"
 import { validatePhoneNumber } from "~/utils/isPhoneNumber.util"
 import { logNonCustomError } from "~/utils/logNonCustomError.util"
 
 import { createPayment } from "./../constants/type"
+import koiFishService from "./koiFish.service"
 import orderDetailService from "./orderDetail.service"
 import paymentService from "./payment.service"
+import productService from "./product.service"
 
 async function getOrders(pageIndex: number, pageSize: number, keyword: string, phoneNumber: string) {
   try {
@@ -33,8 +37,26 @@ async function getOrders(pageIndex: number, pageSize: number, keyword: string, p
     })
     let dataResponse: any[] = []
     if (orders.length > 0) {
-      // Lấy tất cả các orderId từ danh sách orders
       const orderIds = orders.map((order) => order.id).filter((id): id is string => id !== undefined)
+      const orderDetails = await OrderDetail.findAll({
+        where: { orderId: orderIds, isDeleted: false },
+        attributes: ["id", "orderId", "koiFishId", "productId", "type", "quantity", "unitPrice", "totalPrice"]
+      })
+      const productIds = orderDetails
+        .map((orderDetail) => orderDetail.productId)
+        .filter((productId): productId is string => productId !== undefined)
+      const products = await Product.findAll({
+        where: { id: productIds, isDeleted: false },
+        attributes: ["id", "name", "description", "stock", "price"]
+      })
+
+      const koiFishIds = orderDetails
+        .map((orderDetail) => orderDetail.koiFishId)
+        .filter((koiFishId): koiFishId is string => koiFishId !== undefined)
+      const koiFishs = await KoiFish.findAll({
+        where: { id: koiFishIds, isDeleted: false },
+        attributes: ["id", "name", "description", "size", "gender", "isSold", "price"]
+      })
 
       const payments = await Payment.findAll({
         where: { orderId: orderIds, isDeleted: false },
@@ -42,13 +64,31 @@ async function getOrders(pageIndex: number, pageSize: number, keyword: string, p
       })
 
       const unFormatDateOrders = orders.map((order) => {
+        const relatedOrderDetail = orderDetails.filter((od) => od.orderId === order.id)
+        const formatOrderDetail = relatedOrderDetail.map((orderDetail) => {
+          if (orderDetail.type === "KOIFISH") {
+            const koiFish = koiFishs.find((k) => k.id === orderDetail.koiFishId)
+            return {
+              ...orderDetail.toJSON(),
+              koiFish: koiFish,
+              product: null
+            }
+          } else if (orderDetail.type === "PRODUCT") {
+            const product = products.find((p) => p.id === orderDetail.productId)
+            return {
+              ...orderDetail.toJSON(),
+              koifish: null,
+              product: product
+            }
+          }
+        })
         const payment = payments.find((p) => p.orderId === order.id)
         return {
           ...order.toJSON(),
+          orderDetails: formatOrderDetail,
           payment: payment
         }
       })
-      // Format dữ liệu
       dataResponse = unFormatDateOrders.map((order) => formatModelDate(order))
     }
     const pagination = calculatePagination(count, pageSize, pageIndex)
