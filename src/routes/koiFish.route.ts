@@ -158,7 +158,7 @@ router.post("/", KoiFishController.createKoiFish)
  *       200:
  *         description: Returns a message
  */
-router.put("/:id", authMiddleware.verifyToken, KoiFishController.updateKoiFish)
+router.put("/:id", KoiFishController.updateKoiFish)
 
 /**
  * @swagger
@@ -178,6 +178,6 @@ router.put("/:id", authMiddleware.verifyToken, KoiFishController.updateKoiFish)
  *       200:
  *         description: Returns a message
  */
-router.delete("/:id", authMiddleware.verifyToken, KoiFishController.deleteKoiFish)
+router.delete("/:id", KoiFishController.deleteKoiFish)
 
 export default router

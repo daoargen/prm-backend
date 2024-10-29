@@ -1,3 +1,4 @@
+import { Payment } from "~/models/payment.model"
 export type Account = {
   id: string
   email: string
@@ -157,6 +158,7 @@ export interface UpdateProductCategory {
 
 export interface CreateOrder {
   phoneNumber: string
+  payMethod: "CARD" | "COD"
   orderDetails: CreateOrderDetail[]
 }
 
@@ -223,4 +225,19 @@ export interface UpdateSupplier {
   description?: string
   phoneNumber?: string
   email?: string
+}
+
+export interface createPayment {
+  orderId: string
+  amount: number
+  payMethod: "CARD" | "COD"
+}
+
+export interface UpdatePayment {
+  payStatus?: "PENDING" | "COMPLETED" | "CANCEL"
+}
+
+export interface handleSepayWebhook {
+  content: string // Nội dung chuyển khoản
+  transferAmount: number // Số tiền giao dịch
 }

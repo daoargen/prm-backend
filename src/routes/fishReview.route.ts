@@ -32,6 +32,6 @@ const router = express.Router()
  *       201:
  *         description: Returns a created fish review object
  */
-router.post("/", authMiddleware.verifyToken, FishReviewController.createFishReview)
+router.post("/", FishReviewController.createFishReview)
 
 export default router

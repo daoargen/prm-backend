@@ -140,7 +140,7 @@ router.post("/", ProductController.createProduct)
  *       200:
  *         description: Returns a message
  */
-router.put("/:id", authMiddleware.verifyToken, ProductController.updateProduct)
+router.put("/:id", ProductController.updateProduct)
 
 /**
  * @swagger
@@ -160,6 +160,6 @@ router.put("/:id", authMiddleware.verifyToken, ProductController.updateProduct)
  *       200:
  *         description: Returns a message
  */
-router.delete("/:id", authMiddleware.verifyToken, ProductController.deleteProduct)
+router.delete("/:id", ProductController.deleteProduct)
 
 export default router

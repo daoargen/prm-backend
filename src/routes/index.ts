@@ -6,6 +6,7 @@ import elementRouter from "~/routes/element.route"
 import fishReviewRouter from "~/routes/fishReview.route"
 import koiFishRouter from "~/routes/koiFish.route"
 import orderRouter from "~/routes/order.route"
+import paymentRouter from "~/routes/payment.route"
 import productRouter from "~/routes/product.route"
 import productReviewRouter from "~/routes/productReview.route"
 import supplierRouter from "~/routes/supplier.route"
@@ -21,6 +22,7 @@ app.use("/elements", elementRouter)
 app.use("/fish-reviews", fishReviewRouter)
 app.use("/koi-fishes", koiFishRouter)
 app.use("/orders", orderRouter)
+app.use("/payments", paymentRouter)
 app.use("/products", productRouter)
 app.use("/product-reviews", productReviewRouter)
 app.use("/suppliers", supplierRouter)

@@ -112,7 +112,7 @@ router.post("/", ElementController.createElement)
  *       200:
  *         description: Returns a message
  */
-router.put("/:id", authMiddleware.verifyToken, ElementController.updateElement)
+router.put("/:id", ElementController.updateElement)
 
 /**
  * @swagger
@@ -132,6 +132,6 @@ router.put("/:id", authMiddleware.verifyToken, ElementController.updateElement)
  *       200:
  *         description: Returns a message
  */
-router.delete("/:id", authMiddleware.verifyToken, ElementController.deleteElement)
+router.delete("/:id", ElementController.deleteElement)
 
 export default router

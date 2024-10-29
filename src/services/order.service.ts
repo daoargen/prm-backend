@@ -4,18 +4,24 @@ import responseStatus from "~/constants/responseStatus"
 import { CreateOrder, CreateOrderDetail, UpdateOrder } from "~/constants/type"
 import { Order, OrderInstance } from "~/models/order.model"
 import { OrderDetail } from "~/models/orderDetail.model"
+import { Payment } from "~/models/payment.model"
 import { calculatePagination } from "~/utils/calculatePagination.utilt"
 import { formatModelDate } from "~/utils/formatTimeModel.util"
 import { logNonCustomError } from "~/utils/logNonCustomError.util"
 
+import { createPayment } from "./../constants/type"
 import orderDetailService from "./orderDetail.service"
+import paymentService from "./payment.service"
 
-async function getOrders(pageIndex: number, pageSize: number, keyword: string) {
+async function getOrders(pageIndex: number, pageSize: number, keyword: string, phoneNumber: string) {
   try {
     const whereCondition: any = { isDeleted: false }
 
     if (keyword) {
-      // Add conditions for keyword search if needed
+      whereCondition[Op.or] = []
+    }
+    if (phoneNumber) {
+      whereCondition[Op.or] = [{ phoneNumber: { [Op.like]: `%${phoneNumber}%` } }]
     }
 
     const { count, rows: orders } = await Order.findAndCountAll({
@@ -24,8 +30,26 @@ async function getOrders(pageIndex: number, pageSize: number, keyword: string) {
       offset: (pageIndex - 1) * pageSize,
       order: [["createdAt", "DESC"]]
     })
+    let dataResponse: any[] = []
+    if (orders.length > 0) {
+      // Lấy tất cả các orderId từ danh sách orders
+      const orderIds = orders.map((order) => order.id).filter((id): id is string => id !== undefined)
 
-    const dataResponse = orders.map((order) => formatModelDate(order.toJSON()))
+      const payments = await Payment.findAll({
+        where: { orderId: orderIds, isDeleted: false },
+        attributes: ["id", "orderId", "paymentCode", "payMethod", "payStatus"]
+      })
+
+      const unFormatDateOrders = orders.map((order) => {
+        const payment = payments.find((p) => p.orderId === order.id)
+        return {
+          ...order.toJSON(),
+          payment: payment
+        }
+      })
+      // Format dữ liệu
+      dataResponse = unFormatDateOrders.map((order) => formatModelDate(order))
+    }
     const pagination = calculatePagination(count, pageSize, pageIndex)
 
     return { orders: dataResponse, pagination }
@@ -41,7 +65,14 @@ async function getOrderById(id: string) {
     if (!order) {
       throw responseStatus.responseNotFound404("Không tìm thấy đơn hàng")
     }
-    return order
+    const payment = await Payment.findAll({
+      where: { orderId: order.id, isDeleted: false },
+      attributes: ["id", "orderId", "paymentCode", "payMethod", "payStatus"]
+    })
+    return {
+      ...order.toJSON(),
+      payment: payment
+    }
   } catch (error) {
     logNonCustomError(error)
     throw error
@@ -93,8 +124,17 @@ async function createOrder(newOrder: CreateOrder) {
     })
 
     createdOrder.totalAmount = await calculateTotalAmountForOrder(createdOrder.id)
+    await createdOrder.save()
 
-    return createdOrder
+    const newPayment: createPayment = {
+      orderId: createdOrder.id,
+      amount: createdOrder.totalAmount,
+      payMethod: newOrder.payMethod
+    }
+
+    await paymentService.createPayment(newPayment)
+
+    return await getOrderById(createdOrder.id)
   } catch (error) {
     logNonCustomError(error)
     throw error

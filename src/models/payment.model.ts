@@ -18,6 +18,10 @@ export const Payment = sequelize.define<PaymentInstance>(tableName, {
     type: DataTypes.FLOAT,
     allowNull: false
   },
+  paymentCode: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   payDate: {
     type: DataTypes.DATE,
     allowNull: false
@@ -43,6 +47,7 @@ export interface PaymentAttributes {
   id?: string
   orderId: string
   amount: number
+  paymentCode: string
   payDate: Date
   payMethod: "CARD" | "COD"
   payStatus: "PENDING" | "COMPLETED" | "CANCEL"

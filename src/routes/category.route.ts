@@ -79,7 +79,7 @@ router.get("/:id", CategoryController.getCategoryById)
  *       201:
  *         description: Returns a created category object
  */
-router.post("/", authMiddleware.verifyToken, CategoryController.createCategory)
+router.post("/", CategoryController.createCategory)
 
 /**
  * @swagger
@@ -112,7 +112,7 @@ router.post("/", authMiddleware.verifyToken, CategoryController.createCategory)
  *       200:
  *         description: Returns a message
  */
-router.put("/:id", authMiddleware.verifyToken, CategoryController.updateCategory)
+router.put("/:id", CategoryController.updateCategory)
 
 /**
  * @swagger
@@ -132,6 +132,6 @@ router.put("/:id", authMiddleware.verifyToken, CategoryController.updateCategory
  *       200:
  *         description: Returns a message
  */
-router.delete("/:id", authMiddleware.verifyToken, CategoryController.deleteCategory)
+router.delete("/:id", CategoryController.deleteCategory)
 
 export default router

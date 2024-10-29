@@ -112,7 +112,7 @@ router.post("/", VarietyController.createVariety)
  *       200:
  *         description: Returns a message
  */
-router.put("/:id", authMiddleware.verifyToken, VarietyController.updateVariety)
+router.put("/:id", VarietyController.updateVariety)
 
 /**
  * @swagger
@@ -132,6 +132,6 @@ router.put("/:id", authMiddleware.verifyToken, VarietyController.updateVariety)
  *       200:
  *         description: Returns a message
  */
-router.delete("/:id", authMiddleware.verifyToken, VarietyController.deleteVariety)
+router.delete("/:id", VarietyController.deleteVariety)
 
 export default router

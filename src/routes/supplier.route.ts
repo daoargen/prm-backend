@@ -124,7 +124,7 @@ router.post("/", SupplierController.createSupplier)
  *       200:
  *         description: Returns a message
  */
-router.put("/:id", authMiddleware.verifyToken, SupplierController.updateSupplier)
+router.put("/:id", SupplierController.updateSupplier)
 
 /**
  * @swagger
@@ -144,6 +144,6 @@ router.put("/:id", authMiddleware.verifyToken, SupplierController.updateSupplier
  *       200:
  *         description: Returns a message
  */
-router.delete("/:id", authMiddleware.verifyToken, SupplierController.deleteSupplier)
+router.delete("/:id", SupplierController.deleteSupplier)
 
 export default router

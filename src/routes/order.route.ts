@@ -29,6 +29,11 @@ const router = express.Router()
  *         schema:
  *           type: string
  *         description: Keyword to search
+ *       - in: query
+ *         name: phoneNumber
+ *         schema:
+ *           type: string
+ *         description: phoneNumber to search
  *     responses:
  *       200:
  *         description: Returns a list of orders
@@ -72,6 +77,9 @@ router.get("/:id", orderController.getOrderById)
  *               phoneNumber:
  *                 type: string
  *                 description: Phone number of the customer
+ *               payMethod:
+ *                 type: string
+ *                 description: Pay method of the customer
  *               orderDetails:
  *                 type: array
  *                 description: List of order details
@@ -118,21 +126,15 @@ router.post("/", orderController.createOrder)
  *           schema:
  *             type: object
  *             properties:
- *               phoneNumber:
- *                 type: string
- *                 description: Phone number of the customer
  *               status:
  *                 type: string
  *                 enum: [PENDING_CONFIRMATION, IN_TRANSIT, COMPLETED, CANCEL]
  *                 description: Order status
- *               totalAmount:
- *                 type: number
- *                 description: Total amount of the order
  *     responses:
  *       200:
  *         description: Returns a message
  */
-router.put("/:id", authMiddleware.verifyToken, orderController.editOrder)
+router.put("/:id", orderController.editOrder)
 
 /**
  * @swagger
@@ -152,6 +154,6 @@ router.put("/:id", authMiddleware.verifyToken, orderController.editOrder)
  *       200:
  *         description: Returns a message
  */
-router.delete("/:id", authMiddleware.verifyToken, orderController.deleteOrder)
+router.delete("/:id", orderController.deleteOrder)
 
 export default router

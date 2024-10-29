@@ -32,6 +32,6 @@ const router = express.Router()
  *       201:
  *         description: Returns a created product review object
  */
-router.post("/", authMiddleware.verifyToken, ProductReviewController.createProductReview)
+router.post("/", ProductReviewController.createProductReview)
 
 export default router
