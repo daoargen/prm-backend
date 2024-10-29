@@ -94,6 +94,16 @@ router.get("/:id", ProductController.getProductById)
  *               supplierId:
  *                 type: string
  *                 description: Supplier Id
+ *               categoryIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: list of categoryIds - string
+ *               imageUrls:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: list of imageUrls - string
  *     responses:
  *       201:
  *         description: Returns a created product object
