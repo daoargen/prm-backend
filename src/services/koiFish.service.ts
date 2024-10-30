@@ -30,14 +30,12 @@ async function getKoiFishes(pageIndex: number, pageSize: number, keyword: string
 
     if (yob) {
       const destiny = getDestinyByYearOfBirth(yob)
-      console.log(destiny)
       const element = await Element.findOne({
         where: {
           name: destiny,
           isDeleted: false
         }
       })
-      console.log(element)
       if (element && element.id) {
         const elementId = element.id
         const koiFishIdsWithElement = await KoiFishElement.findAll({
@@ -159,7 +157,6 @@ async function getKoiFishById(id: string) {
 
 async function createKoiFish(newKoiFish: CreateKoiFish) {
   try {
-    console.log(newKoiFish)
     const createdKoiFish = await KoiFish.create({
       varietyId: newKoiFish.varietyId,
       name: newKoiFish.name,
@@ -305,7 +302,6 @@ function getDestinyByYearOfBirth(yearOfBirth: number): string {
   if (destinyValue > 5) {
     destinyValue -= 5
   }
-  console.log(destinyValues[destinyValue - 1])
   return destinyValues[destinyValue - 1]
 }
 

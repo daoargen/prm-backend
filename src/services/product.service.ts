@@ -26,8 +26,6 @@ async function getProducts(pageIndex: number, pageSize: number, keyword: string)
       ]
     }
 
-    console.log(keyword)
-
     const { count, rows: products } = await Product.findAndCountAll({
       where: whereCondition,
       limit: pageSize,

@@ -41,7 +41,7 @@ export const KoiFish = sequelize.define<KoiFishInstance>(tableName, {
     allowNull: false
   },
   price: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.FLOAT,
     allowNull: false
   },
   ...SQLModel

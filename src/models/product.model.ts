@@ -23,7 +23,7 @@ export const Product = sequelize.define<ProductInstance>(tableName, {
     allowNull: false
   },
   price: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.FLOAT,
     allowNull: false
   },
   supplierId: {
