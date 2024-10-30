@@ -14,7 +14,7 @@ import { logNonCustomError } from "~/utils/logNonCustomError.util"
 import productCategoryService from "./productCategory.service"
 import productImageUrlService from "./productImageUrl.service"
 
-async function getProducts(pageIndex: number, pageSize: number, keyword: string) {
+async function getProducts(pageIndex: number, pageSize: number, keyword: string, category: string) {
   try {
     const whereCondition: any = { isDeleted: false }
 
@@ -24,6 +24,26 @@ async function getProducts(pageIndex: number, pageSize: number, keyword: string)
         { name: { [Op.like]: `%${keyword}%` } },
         { description: { [Op.like]: `%${keyword}%` } }
       ]
+    }
+    if (category) {
+      const currentCategory = await Category.findOne({
+        where: { name: category, isDeleted: false },
+        attributes: ["id", "name"]
+      })
+      if (!currentCategory) {
+        throw responseStatus.responseNotFound404("Không tìm thấy category")
+      }
+      const productCategories = await ProductCategory.findAll({
+        where: { categoryId: currentCategory.id, isDeleted: false },
+        attributes: ["productId"]
+      })
+
+      const productIdsByCategory = productCategories
+        .map((pc) => pc.productId)
+        .filter((productId): productId is string => productId !== undefined)
+      if (productIdsByCategory.length > 0) {
+        whereCondition.id = { [Op.in]: productIdsByCategory }
+      }
     }
 
     const { count, rows: products } = await Product.findAndCountAll({

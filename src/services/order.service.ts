@@ -2,11 +2,13 @@ import { Op } from "sequelize"
 
 import responseStatus from "~/constants/responseStatus"
 import { CreateOrder, CreateOrderDetail, UpdateOrder } from "~/constants/type"
+import { FishImageUrl } from "~/models/fishImageUrl.model"
 import { KoiFish } from "~/models/koiFish.model"
 import { Order, OrderInstance } from "~/models/order.model"
 import { OrderDetail } from "~/models/orderDetail.model"
 import { Payment } from "~/models/payment.model"
 import { Product } from "~/models/product.model"
+import { ProductImageUrl } from "~/models/productImageUrl.model"
 import { calculatePagination } from "~/utils/calculatePagination.utilt"
 import { formatModelDate } from "~/utils/formatTimeModel.util"
 import { validatePhoneNumber } from "~/utils/isPhoneNumber.util"
@@ -106,13 +108,71 @@ async function getOrderById(id: string) {
     if (!order) {
       throw responseStatus.responseNotFound404("Không tìm thấy đơn hàng")
     }
-    const payment = await Payment.findAll({
+    const payment = await Payment.findOne({
       where: { orderId: order.id, isDeleted: false },
       attributes: ["id", "orderId", "paymentCode", "payMethod", "payStatus"]
     })
+    const orderDetails = await OrderDetail.findAll({
+      where: { orderId: id, isDeleted: false },
+      attributes: ["id", "orderId", "koiFishId", "productId", "type", "quantity", "unitPrice", "totalPrice"]
+    })
+
+    const productIds = orderDetails
+      .map((orderDetail) => orderDetail.productId)
+      .filter((productId): productId is string => productId !== undefined)
+    const products = await Product.findAll({
+      where: { id: productIds, isDeleted: false },
+      attributes: ["id", "name", "description", "stock", "price"]
+    })
+
+    const koiFishIds = orderDetails
+      .map((orderDetail) => orderDetail.koiFishId)
+      .filter((koiFishId): koiFishId is string => koiFishId !== undefined)
+    const koiFishs = await KoiFish.findAll({
+      where: { id: koiFishIds, isDeleted: false },
+      attributes: ["id", "name", "description", "size", "gender", "isSold", "price"]
+    })
+
+    // Sử dụng Promise.all để chờ tất cả các Promise hoàn thành
+    const formatOrderDetail = await Promise.all(
+      orderDetails.map(async (orderDetail) => {
+        if (orderDetail.type === "KOIFISH") {
+          const koiFish = koiFishs.find((k) => k.id === orderDetail.koiFishId)
+          const fishImageUrls = await FishImageUrl.findAll({
+            where: { koiFishId: koiFish?.id, isDeleted: false },
+            attributes: ["id", "koiFishId", "imageUrl"]
+          })
+          return {
+            ...orderDetail.toJSON(),
+            koiFish: {
+              ...koiFish?.toJSON(),
+              imageUrls: fishImageUrls
+            },
+            product: null
+          }
+        } else if (orderDetail.type === "PRODUCT") {
+          const product = products.find((p) => p.id === orderDetail.productId)
+          const productImageUrls = await ProductImageUrl.findAll({
+            where: { productId: product?.id, isDeleted: false },
+            attributes: ["id", "productId", "imageUrl"]
+          })
+          return {
+            ...orderDetail.toJSON(),
+            koifish: null,
+            product: {
+              ...product?.toJSON(),
+              imageUrls: productImageUrls
+            }
+          }
+        }
+      })
+    )
+
+    // Trả về kết quả sau khi xử lý
     return {
       ...order.toJSON(),
-      payment: payment
+      formatOrderDetail: formatOrderDetail,
+      payment: payment ? payment.toJSON() : null
     }
   } catch (error) {
     logNonCustomError(error)
@@ -125,7 +185,7 @@ async function createOrder(newOrder: CreateOrder) {
     validatePhoneNumber(newOrder.phoneNumber)
     const createdOrder = await Order.create({
       phoneNumber: newOrder.phoneNumber,
-      status: "PENDING_CONFIRMATION",
+      status: "PENDING",
       totalAmount: 0
     })
     if (!createdOrder.id) {
@@ -202,6 +262,48 @@ async function updateOrder(id: string, updatedOrder: UpdateOrder) {
   }
 }
 
+async function comfirmOrder(id: string) {
+  try {
+    const order = await Order.findOne({ where: { id, isDeleted: false } })
+    if (!order) {
+      throw responseStatus.responseNotFound404("Không tìm thấy đơn hàng")
+    }
+
+    const orderDetails = await OrderDetail.findAll({
+      where: { orderId: id, isDeleted: false },
+      attributes: ["id", "orderId", "koiFishId", "productId", "type", "quantity", "unitPrice", "totalPrice"]
+    })
+
+    const koiFishIds = orderDetails
+      .map((orderDetail) => orderDetail.koiFishId)
+      .filter((koiFishId): koiFishId is string => koiFishId !== undefined)
+
+    const koiFishs = await KoiFish.findAll({
+      where: { id: koiFishIds, isSold: true, isDeleted: false },
+      attributes: ["id", "name", "description", "size", "gender", "isSold", "price"]
+    })
+
+    if (koiFishs.length > 0) {
+      throw responseStatus.responseBadRequest400("Đơn hàng có cá đã bán")
+    }
+
+    const payment = await Payment.findOne({
+      where: { orderId: id, isDeleted: false },
+      attributes: ["id", "orderId", "paymentCode", "payMethod", "payStatus"]
+    })
+
+    if (payment?.payMethod === "COD") {
+      order.status = "TRANSIT"
+      await order.save()
+    }
+
+    return "Xác nhận đơn hàng thành công"
+  } catch (error) {
+    logNonCustomError(error)
+    throw error
+  }
+}
+
 async function deleteOrder(id: string) {
   try {
     const order = await Order.findOne({ where: { id, isDeleted: false } })
@@ -224,5 +326,6 @@ export default {
   getOrderById,
   createOrder,
   updateOrder,
-  deleteOrder
+  deleteOrder,
+  comfirmOrder
 }

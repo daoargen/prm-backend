@@ -165,7 +165,7 @@ export interface CreateOrder {
 }
 
 export interface UpdateOrder {
-  status?: "PENDING_CONFIRMATION" | "IN TRANSIT" | "COMPLETED" | "CANCEL"
+  status?: "PENDING" | "TRANSIT" | "COMPLETED" | "CANCEL"
 }
 
 export interface CreateOrderDetail {

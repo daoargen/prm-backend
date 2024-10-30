@@ -37,7 +37,7 @@ const router = express.Router()
  *       500:
  *         description: Internal server error
  */
-router.post("/webhook", authMiddleware.verifyToken, PaymentController.completePaymentFromWebhook)
+router.post("/webhook", PaymentController.completePaymentFromWebhook)
 
 /**
  * @swagger
@@ -63,7 +63,7 @@ router.post("/webhook", authMiddleware.verifyToken, PaymentController.completePa
  *       500:
  *         description: Internal server error
  */
-router.post("/:id/cancel", authMiddleware.verifyToken, PaymentController.cancelPayment)
+router.post("/:id/cancel", PaymentController.cancelPayment)
 
 /**
  * @swagger
@@ -94,6 +94,6 @@ router.post("/:id/cancel", authMiddleware.verifyToken, PaymentController.cancelP
  *       200:
  *         description: Returns a message
  */
-router.put("/:id", authMiddleware.verifyToken, PaymentController.updatePayment)
+router.put("/:id", PaymentController.updatePayment)
 
 export default router

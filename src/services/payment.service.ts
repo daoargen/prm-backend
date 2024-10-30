@@ -2,9 +2,14 @@ import { Op } from "sequelize"
 
 import responseStatus from "~/constants/responseStatus"
 import { createPayment, handleSepayWebhook, UpdatePayment } from "~/constants/type"
+import { KoiFish } from "~/models/koiFish.model"
 import { Order } from "~/models/order.model"
+import { OrderDetail } from "~/models/orderDetail.model"
 import { Payment, PaymentAttributes } from "~/models/payment.model"
+import { Product } from "~/models/product.model"
 import { logNonCustomError } from "~/utils/logNonCustomError.util"
+
+import orderService from "./order.service"
 
 async function getPaymentById(id: string) {
   try {
@@ -117,8 +122,60 @@ async function completePaymentFromWebhook(webhookData: handleSepayWebhook) {
     payment.payStatus = "COMPLETED"
     await payment.save()
 
+    if (payment.payMethod === "CARD") {
+      order.status = "TRANSIT"
+      await order.save()
+    }
+
     order.status = "COMPLETED"
     await order.save()
+
+    const orderDetails = await OrderDetail.findAll({
+      where: { orderId: order.id, isDeleted: false },
+      attributes: ["id", "orderId", "koiFishId", "productId", "type", "quantity", "unitPrice", "totalPrice"]
+    })
+    const productIds = orderDetails
+      .map((orderDetail) => orderDetail.productId)
+      .filter((productId): productId is string => productId !== undefined)
+    const products = await Product.findAll({
+      where: { id: productIds, isDeleted: false },
+      attributes: ["id", "name", "description", "stock", "price"]
+    })
+
+    const koiFishIds = orderDetails
+      .map((orderDetail) => orderDetail.koiFishId)
+      .filter((koiFishId): koiFishId is string => koiFishId !== undefined)
+    const koiFishs = await KoiFish.findAll({
+      where: { id: koiFishIds, isDeleted: false },
+      attributes: ["id", "name", "description", "size", "gender", "isSold", "price"]
+    })
+
+    const updatedProducts = products.map((product) => {
+      const orderDetail = orderDetails.find((od) => od.productId === product.id && od.type === "PRODUCT")
+
+      if (orderDetail) {
+        product.stock -= orderDetail.quantity
+      }
+
+      return product
+    })
+
+    await Promise.all(
+      updatedProducts.map((product) => {
+        return product.save()
+      })
+    )
+
+    const updatedKoiFishs = koiFishs.map((koiFish) => {
+      koiFish.isSold = true
+      return koiFish
+    })
+
+    await Promise.all(
+      updatedKoiFishs.map((koiFish) => {
+        return koiFish.save()
+      })
+    )
   } catch (error) {
     logNonCustomError(error)
     throw error
@@ -151,7 +208,7 @@ async function cancelPayment(paymentId: string) {
       throw responseStatus.responseBadRequest400("Order already cancelled")
     }
 
-    if (order.status === "IN TRANSIT") {
+    if (order.status === "TRANSIT") {
       throw responseStatus.responseBadRequest400("Order is being in transit")
     }
 

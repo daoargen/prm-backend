@@ -43,6 +43,20 @@ async function editOrder(req: Request, res: Response) {
   }
 } // Controller for editing an order
 
+async function confirmOrder(req: Request, res: Response) {
+  try {
+    const id = req.params.id
+    if (!id) {
+      return res.json(responseStatus.responseBadRequest400("Missing required fields"))
+    }
+
+    const dataResponse = await orderService.comfirmOrder(id)
+    return res.json(responseStatus.responseMessage200(dataResponse))
+  } catch (error) {
+    return res.json(error)
+  }
+} // Controller for editing an order
+
 async function deleteOrder(req: Request, res: Response) {
   try {
     const id = req.params.id
@@ -90,5 +104,6 @@ export default {
   editOrder,
   deleteOrder,
   getOrders,
-  getOrderById
+  getOrderById,
+  confirmOrder
 }

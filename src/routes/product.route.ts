@@ -40,6 +40,11 @@ const router = express.Router()
  *         schema:
  *           type: string
  *         description: year of birth
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: category name of product
  *     responses:
  *       200:
  *         description: Returns a list of products

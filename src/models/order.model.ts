@@ -15,9 +15,9 @@ export const Order = sequelize.define<OrderInstance>(tableName, {
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM("PENDING_CONFIRMATION", "IN TRANSIT", "COMPLETED", "CANCEL"),
+    type: DataTypes.ENUM("PENDING", "TRANSIT", "COMPLETED", "CANCEL"),
     allowNull: false,
-    defaultValue: "PENDING_CONFIRMATION"
+    defaultValue: "PENDING"
   },
   totalAmount: {
     type: DataTypes.FLOAT,
@@ -29,7 +29,7 @@ export const Order = sequelize.define<OrderInstance>(tableName, {
 export interface OrderAttributes {
   id?: string
   phoneNumber: string
-  status: "PENDING_CONFIRMATION" | "IN TRANSIT" | "COMPLETED" | "CANCEL"
+  status: "PENDING" | "TRANSIT" | "COMPLETED" | "CANCEL"
   totalAmount: number
   isDeleted?: boolean
 }

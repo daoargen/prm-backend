@@ -12,6 +12,7 @@ async function getProducts(req: Request, res: Response) {
     const keyword = req.query.keyword as string
     const type = (req.query.type as string).toLowerCase()
     const yob = parseInt(req.query.yob as string)
+    const category = req.query.category as string
 
     if (!type) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
@@ -21,7 +22,7 @@ async function getProducts(req: Request, res: Response) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }
     if (type === "product") {
-      const { products, pagination } = await productService.getProducts(pageIndex, pageSize, keyword)
+      const { products, pagination } = await productService.getProducts(pageIndex, pageSize, keyword, category)
       return res.json(responseStatus.responseData200("Get products successfully!", products, pagination))
     }
     if (type === "koifish") {

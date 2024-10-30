@@ -138,6 +138,26 @@ router.put("/:id", orderController.editOrder)
 
 /**
  * @swagger
+ * /api/orders/{id}/confirm:
+ *   put:
+ *     tags:
+ *       - order
+ *     summary: Api for confirm orderm if pay method is COD, the order start transit, if pay method is CARD, the order start payment
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Order Id
+ *     responses:
+ *       200:
+ *         description: Returns a message
+ */
+router.put("/:id/confirm", orderController.confirmOrder)
+
+/**
+ * @swagger
  * /api/orders/{id}:
  *   delete:
  *     tags:

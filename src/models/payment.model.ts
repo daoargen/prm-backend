@@ -27,7 +27,7 @@ export const Payment = sequelize.define<PaymentInstance>(tableName, {
     allowNull: false
   },
   payMethod: {
-    type: DataTypes.ENUM("CARD", "CASH"),
+    type: DataTypes.ENUM("CARD", "COD"),
     allowNull: false
   },
   payStatus: {
