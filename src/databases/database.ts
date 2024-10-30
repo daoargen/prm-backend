@@ -8,7 +8,13 @@ const sequelize = new Sequelize(
     host: process.env.MYSQL_HOST,
     dialect: "mysql",
     logging: false,
-    timezone: "+07:00"
+    timezone: "+07:00",
+    dialectOptions: {
+      ssl: {
+        require: true, // Yêu cầu SSL
+        rejectUnauthorized: false // Bỏ qua kiểm tra chứng chỉ
+      }
+    }
   }
 )
 
