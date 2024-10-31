@@ -123,6 +123,7 @@ async function getProductById(id: string) {
     })
     return {
       ...product.toJSON(),
+      type: "PRODUCT",
       categories: categories,
       imageUrls: imageUrls,
       productReviews: productReviews

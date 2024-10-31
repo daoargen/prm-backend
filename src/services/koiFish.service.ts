@@ -144,6 +144,7 @@ async function getKoiFishById(id: string) {
     })
     return {
       ...koiFish.toJSON(),
+      type: "KOIFISH",
       varitety: variety,
       elements: elements,
       imageUrls: imageUrls,
