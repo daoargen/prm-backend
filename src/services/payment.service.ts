@@ -1,3 +1,5 @@
+import ejs from "ejs"
+import path from "path"
 import { Op } from "sequelize"
 
 import responseStatus from "~/constants/responseStatus"
@@ -8,6 +10,7 @@ import { OrderDetail } from "~/models/orderDetail.model"
 import { Payment, PaymentAttributes } from "~/models/payment.model"
 import { Product } from "~/models/product.model"
 import { logNonCustomError } from "~/utils/logNonCustomError.util"
+import { sendEmail } from "~/utils/sendEmail.util"
 
 import orderService from "./order.service"
 
@@ -21,7 +24,7 @@ async function getPaymentById(id: string) {
       throw responseStatus.responseNotFound404("Không tìm thấy thông tin thanh toán.")
     }
 
-    return payment
+    return await orderService.getOrderById(payment.orderId)
   } catch (error) {
     logNonCustomError(error)
     throw error
@@ -176,6 +179,20 @@ async function completePaymentFromWebhook(webhookData: handleSepayWebhook) {
         return koiFish.save()
       })
     )
+
+    const emailUser = order.email
+    const emailHeader = "KOI FISH PROJECT"
+    const emailBody = `
+      <h1>Đơn hàng của bạn đã được xác nhận!</h1>
+      <p>Cảm ơn bạn đã mua hàng tại KOI FISH PROJECT.</p>
+      <p>Mã đơn hàng: ${order.id}</p>
+      <p>Mã review đơn hàng: ${payment.id}</p>
+      <p>Mã thanh toán: ${payment.paymentCode}</p>
+      <p>Phương thức thanh toán: ${payment.payMethod}</p>
+      <p>Tổng tiền: ${order.totalAmount}</p>
+    `
+
+    await sendEmail(emailUser, emailHeader, emailBody)
   } catch (error) {
     logNonCustomError(error)
     throw error

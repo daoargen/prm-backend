@@ -45,8 +45,23 @@ async function updatePayment(req: Request, res: Response) {
   }
 }
 
+async function getPaymentById(req: Request, res: Response) {
+  try {
+    const id = req.params.id
+    if (!id) {
+      return res.json(responseStatus.responseBadRequest400("Missing required fields"))
+    }
+
+    const dataResponse = await paymentService.getPaymentById(id)
+    return res.json(responseStatus.responseData200("Get supplier successfully!", dataResponse))
+  } catch (error) {
+    return res.json(error)
+  }
+}
+
 export default {
   completePaymentFromWebhook,
   cancelPayment,
-  updatePayment
+  updatePayment,
+  getPaymentById
 }

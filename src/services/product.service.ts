@@ -208,10 +208,24 @@ async function deleteProduct(id: string) {
   }
 }
 
+async function checkProductId(id: string) {
+  try {
+    const product = await Product.findOne({ where: { id, isDeleted: false } })
+    if (!product) {
+      return false
+    }
+    return true
+  } catch (error) {
+    logNonCustomError(error)
+    throw error
+  }
+}
+
 export default {
   getProducts,
   getProductById,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  checkProductId
 }

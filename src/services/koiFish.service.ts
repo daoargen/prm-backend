@@ -305,11 +305,25 @@ function getDestinyByYearOfBirth(yearOfBirth: number): string {
   return destinyValues[destinyValue - 1]
 }
 
+async function checkKoifishId(id: string) {
+  try {
+    const koiFish = await KoiFish.findOne({ where: { id, isDeleted: false } })
+    if (!koiFish) {
+      return false
+    }
+    return true
+  } catch (error) {
+    logNonCustomError(error)
+    throw error
+  }
+}
+
 export default {
   getKoiFishes,
   getKoiFishById,
   createKoiFish,
   updateKoiFish,
   deleteKoiFish,
-  getDestinyByYearOfBirth
+  getDestinyByYearOfBirth,
+  checkKoifishId
 }

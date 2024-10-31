@@ -41,8 +41,14 @@ async function getProductById(req: Request, res: Response) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }
 
-    const dataResponse = await productService.getProductById(id)
-    return res.json(responseStatus.responseData200("Get product successfully!", dataResponse))
+    if (await productService.checkProductId(id)) {
+      const dataResponse = await productService.getProductById(id)
+      return res.json(responseStatus.responseData200("Get product successfully!", dataResponse))
+    }
+    if (await koiFishService.checkKoifishId(id)) {
+      const dataResponse = await koiFishService.getKoiFishById(id)
+      return res.json(responseStatus.responseData200("Get koi fish successfully!", dataResponse))
+    }
   } catch (error) {
     return res.json(error)
   }

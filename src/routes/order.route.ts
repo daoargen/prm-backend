@@ -77,6 +77,12 @@ router.get("/:id", orderController.getOrderById)
  *               phoneNumber:
  *                 type: string
  *                 description: Phone number of the customer
+ *               email:
+ *                 type: string
+ *                 description: email of the customer
+ *               address:
+ *                 type: string
+ *                 description: address of the customer
  *               payMethod:
  *                 type: string
  *                 description: Pay method of the customer
@@ -142,7 +148,7 @@ router.put("/:id", orderController.editOrder)
  *   put:
  *     tags:
  *       - order
- *     summary: Api for confirm orderm if pay method is COD, the order start transit, if pay method is CARD, the order start payment
+ *     summary: Api for confirm order if pay method is COD, the order start transit, if pay method is CARD, the order start payment
  *     parameters:
  *       - in: path
  *         name: id

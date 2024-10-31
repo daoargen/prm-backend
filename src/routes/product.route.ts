@@ -56,7 +56,7 @@ router.get("/", ProductController.getProducts)
  * /api/products/{id}:
  *   get:
  *     tags:
- *       - product
+ *       - prm
  *     summary: Api for get product by Id
  *     parameters:
  *       - in: path

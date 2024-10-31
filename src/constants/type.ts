@@ -160,6 +160,8 @@ export interface UpdateProductCategory {
 
 export interface CreateOrder {
   phoneNumber: string
+  email: string
+  address: string
   payMethod: "CARD" | "COD"
   orderDetails: CreateOrderDetail[]
 }

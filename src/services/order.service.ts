@@ -185,6 +185,8 @@ async function createOrder(newOrder: CreateOrder) {
     validatePhoneNumber(newOrder.phoneNumber)
     const createdOrder = await Order.create({
       phoneNumber: newOrder.phoneNumber,
+      email: newOrder.email,
+      address: newOrder.phoneNumber,
       status: "PENDING",
       totalAmount: 0
     })

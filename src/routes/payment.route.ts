@@ -96,4 +96,24 @@ router.post("/:id/cancel", PaymentController.cancelPayment)
  */
 router.put("/:id", PaymentController.updatePayment)
 
+/**
+ * @swagger
+ * /api/payments/{id}:
+ *   get:
+ *     tags:
+ *       - product
+ *     summary: Api for get payment by Id
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Product Id
+ *     responses:
+ *       200:
+ *         description: Returns a product object
+ */
+router.get("/:id", PaymentController.getPaymentById)
+
 export default router

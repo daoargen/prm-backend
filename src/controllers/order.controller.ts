@@ -6,13 +6,15 @@ import orderService from "~/services/order.service"
 
 async function createOrder(req: Request, res: Response) {
   try {
-    const { phoneNumber, payMethod, orderDetails } = req.body
+    const { phoneNumber, email, address, payMethod, orderDetails } = req.body
     if (!phoneNumber || !payMethod || !orderDetails) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }
 
     const dataRequest: CreateOrder = {
       phoneNumber,
+      email,
+      address,
       payMethod,
       orderDetails
     }
