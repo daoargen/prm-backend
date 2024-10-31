@@ -79,7 +79,7 @@ async function getOrders(req: Request, res: Response) {
     const pageIndex = parseInt(req.query.page_index as string) || 1
     const pageSize = parseInt(req.query.page_size as string) || 10
     const keyword = req.query.keyword as string
-    const status = req.query.keyword as string
+    const status = req.query.status as string
     if (!keyword) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }

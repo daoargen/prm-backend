@@ -34,10 +34,9 @@ async function getOrders(pageIndex: number, pageSize: number, keyword: string, s
       }
     }
 
-    if (status) {
+    if (status && status.trim() !== "") {
       const validStatuses = ["PENDING", "TRANSIT", "CANCEL", "COMPLETED"]
       const inputStatus = status.trim().toUpperCase()
-
       if (validStatuses.includes(inputStatus)) {
         whereCondition.status = inputStatus
       } else {
