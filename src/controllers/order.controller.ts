@@ -79,10 +79,11 @@ async function getOrders(req: Request, res: Response) {
     const pageIndex = parseInt(req.query.page_index as string) || 1
     const pageSize = parseInt(req.query.page_size as string) || 10
     const keyword = req.query.keyword as string
+    const status = req.query.keyword as string
     if (!keyword) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }
-    const { orders, pagination } = await orderService.getOrders(pageIndex, pageSize, keyword)
+    const { orders, pagination } = await orderService.getOrders(pageIndex, pageSize, keyword, status)
     return res.json(responseStatus.responseData200("Get orders successfully!", orders, pagination))
   } catch (error) {
     return res.json(error)

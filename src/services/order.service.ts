@@ -20,7 +20,7 @@ import orderDetailService from "./orderDetail.service"
 import paymentService from "./payment.service"
 import productService from "./product.service"
 
-async function getOrders(pageIndex: number, pageSize: number, keyword: string) {
+async function getOrders(pageIndex: number, pageSize: number, keyword: string, status: string) {
   try {
     const whereCondition: any = { isDeleted: false }
 
@@ -31,6 +31,17 @@ async function getOrders(pageIndex: number, pageSize: number, keyword: string) {
         whereCondition[Op.or] = [{ phoneNumber: { [Op.like]: `%${keyword}%` } }]
       } else {
         throw responseStatus.responseBadRequest400("Mã vận đơn hoặc số điện thoại không hợp lệ.")
+      }
+    }
+
+    if (status) {
+      const validStatuses = ["PENDING", "TRANSIT", "CANCEL", "COMPLETED"]
+      const inputStatus = status.trim().toUpperCase()
+
+      if (validStatuses.includes(inputStatus)) {
+        whereCondition.status = inputStatus
+      } else {
+        throw responseStatus.responseBadRequest400("Invalid order status")
       }
     }
 

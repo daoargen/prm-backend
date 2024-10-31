@@ -29,6 +29,11 @@ const router = express.Router()
  *         schema:
  *           type: string
  *         description: Keyword to search
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: status to search
  *     responses:
  *       200:
  *         description: Returns a list of orders
