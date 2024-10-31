@@ -54,12 +54,16 @@ async function createOrderDetail(orderId: string, newOrderDetail: CreateOrderDet
         throw responseStatus.responseNotFound404("Không tìm thấy cá Koi với ID đã cho.")
       }
       unitPrice = koiFish.price
+      koiFish.isSold = true
+      await koiFish.save()
     } else if (newOrderDetail.type === "PRODUCT" && newOrderDetail.productId) {
       const product = await Product.findByPk(newOrderDetail.productId)
       if (!product) {
         throw responseStatus.responseNotFound404("Không tìm thấy sản phẩm với ID đã cho.")
       }
       unitPrice = product.price
+      product.stock -= newOrderDetail.quantity
+      await product.save()
     } else {
       // Xử lý trường hợp type không hợp lệ hoặc thiếu ID
       throw responseStatus.responseBadRequest400("Loại sản phẩm không hợp lệ hoặc thiếu ID sản phẩm.")

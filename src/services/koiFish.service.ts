@@ -81,6 +81,10 @@ async function getKoiFishes(pageIndex: number, pageSize: number, keyword: string
         where: { koiFishId: koiFishIds, isDeleted: false },
         attributes: ["id", "koiFishId", "imageUrl"]
       })
+      const fishReviews = await FishReview.findAll({
+        where: { koiFishId: koiFishIds, isDeleted: false },
+        attributes: ["id", "koiFishId", "rating"]
+      })
       const formatKoiFishs = koiFishes.map((koiFish) => {
         // Lấy danh sách koiFishElement có koiFishId tương ứng
         const relatedKoiFishElements = koiFishElements.filter((kfe) => kfe.koiFishId === koiFish.id)
@@ -89,6 +93,15 @@ async function getKoiFishes(pageIndex: number, pageSize: number, keyword: string
           return elements.find((element) => element.id === kfe.elementId)
         })
         const relatedImageUrls = imageUrls.filter((kfi) => kfi.koiFishId === koiFish.id).map((kfi) => kfi.imageUrl)
+        const relatedFishReview = fishReviews.filter((kfi) => kfi.koiFishId === koiFish.id)
+        let averageRating = 0
+        if (relatedFishReview.length > 0) {
+          let totalRating = 0
+          relatedFishReview.forEach((review) => {
+            totalRating += review.rating
+          })
+          averageRating = totalRating / relatedFishReview.length
+        }
         return {
           ...koiFish.toJSON(),
           type: "KOIFISH",

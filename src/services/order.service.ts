@@ -25,12 +25,23 @@ async function getOrders(pageIndex: number, pageSize: number, keyword: string, s
     const whereCondition: any = { isDeleted: false }
 
     if (keyword) {
+      // Kiểm tra xem keyword có phải là ID hợp lệ không
       if (await checkOrderId(keyword)) {
         whereCondition[Op.or] = [{ id: { [Op.like]: `%${keyword}%` } }]
       } else if (validatePhoneNumber(keyword)) {
+        // Nếu không phải ID, kiểm tra xem có phải số điện thoại hợp lệ không
         whereCondition[Op.or] = [{ phoneNumber: { [Op.like]: `%${keyword}%` } }]
       } else {
-        throw responseStatus.responseBadRequest400("Mã vận đơn hoặc số điện thoại không hợp lệ.")
+        // Nếu không phải ID và không phải số điện thoại hợp lệ
+        return {
+          orders: [],
+          pagination: { pageSize: 10, totalItem: 0, currentPage: 1, maxPageSize: 100, totalPage: 0 }
+        } // Trả về mảng rỗng
+      }
+    } else {
+      return {
+        orders: [],
+        pagination: { pageSize: 10, totalItem: 0, currentPage: 1, maxPageSize: 100, totalPage: 0 }
       }
     }
 
