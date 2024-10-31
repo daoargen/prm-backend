@@ -25,6 +25,9 @@ const router = express.Router()
  *               productId:
  *                 type: string
  *                 description: Product Id
+ *               rating:
+ *                 type: integer
+ *                 description: rating review content
  *               content:
  *                 type: string
  *                 description: Product review content

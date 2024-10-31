@@ -20,15 +20,18 @@ import orderDetailService from "./orderDetail.service"
 import paymentService from "./payment.service"
 import productService from "./product.service"
 
-async function getOrders(pageIndex: number, pageSize: number, keyword: string, phoneNumber: string) {
+async function getOrders(pageIndex: number, pageSize: number, keyword: string) {
   try {
     const whereCondition: any = { isDeleted: false }
 
     if (keyword) {
-      whereCondition[Op.or] = [{ id: { [Op.like]: `%${keyword}%` } }]
-    }
-    if (phoneNumber) {
-      whereCondition[Op.or] = [{ phoneNumber: { [Op.like]: `%${phoneNumber}%` } }]
+      if (await checkOrderId(keyword)) {
+        whereCondition[Op.or] = [{ id: { [Op.like]: `%${keyword}%` } }]
+      } else if (validatePhoneNumber(keyword)) {
+        whereCondition[Op.or] = [{ phoneNumber: { [Op.like]: `%${keyword}%` } }]
+      } else {
+        throw responseStatus.responseBadRequest400("Mã vận đơn hoặc số điện thoại không hợp lệ.")
+      }
     }
 
     const { count, rows: orders } = await Order.findAndCountAll({
@@ -182,11 +185,21 @@ async function getOrderById(id: string) {
 
 async function createOrder(newOrder: CreateOrder) {
   try {
-    validatePhoneNumber(newOrder.phoneNumber)
+    if (!validatePhoneNumber(newOrder.phoneNumber)) {
+      throw responseStatus.responseBadRequest400("Số điện thoại không hợp lệ.")
+    }
+
+    if (newOrder.shippingMethod.toLowerCase() !== "normal" && newOrder.shippingMethod.toLowerCase() !== "fast") {
+      throw responseStatus.responseBadRequest400(
+        "Phương thức vận chuyển không hợp lệ. Chỉ chấp nhận 'normal' hoặc 'fast'."
+      )
+    }
+
     const createdOrder = await Order.create({
       phoneNumber: newOrder.phoneNumber,
       email: newOrder.email,
-      address: newOrder.phoneNumber,
+      address: newOrder.address,
+      shippingMethod: newOrder.shippingMethod,
       status: "PENDING",
       totalAmount: 0
     })
@@ -229,7 +242,14 @@ async function createOrder(newOrder: CreateOrder) {
         totalAmount += createdOrderDetail.totalPrice
       })
     )
+    if (createdOrder.shippingMethod.toLowerCase() == "normal") {
+      totalAmount += 30000
+    }
+    if (createdOrder.shippingMethod.toLowerCase() == "fast") {
+      totalAmount += 50000
+    }
     createdOrder.totalAmount = totalAmount
+
     await createdOrder.save()
 
     const newPayment: createPayment = {
@@ -323,11 +343,25 @@ async function deleteOrder(id: string) {
   }
 }
 
+async function checkOrderId(id: string) {
+  try {
+    const order = await Order.findOne({ where: { id, isDeleted: false } })
+    if (!order) {
+      return false
+    }
+    return true
+  } catch (error) {
+    logNonCustomError(error)
+    throw error
+  }
+}
+
 export default {
   getOrders,
   getOrderById,
   createOrder,
   updateOrder,
   deleteOrder,
-  comfirmOrder
+  comfirmOrder,
+  checkOrderId
 }

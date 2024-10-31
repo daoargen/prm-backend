@@ -119,11 +119,22 @@ async function getProductById(id: string) {
     })
     const productReviews = await ProductReview.findAll({
       where: { productId: id, isDeleted: false },
-      attributes: ["phoneNumber", "content"]
+      attributes: ["phoneNumber", "rating", "content"]
     })
+
+    let averageRating = 0
+    if (productReviews.length > 0) {
+      let totalRating = 0
+      productReviews.forEach((review) => {
+        totalRating += review.rating
+      })
+      averageRating = totalRating / productReviews.length
+    }
+
     return {
       ...product.toJSON(),
       type: "PRODUCT",
+      averageRating: averageRating,
       categories: categories,
       imageUrls: imageUrls,
       productReviews: productReviews

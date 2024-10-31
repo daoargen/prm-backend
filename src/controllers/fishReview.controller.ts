@@ -6,14 +6,15 @@ import fishReviewService from "~/services/fishReview.service"
 
 async function createFishReview(req: Request, res: Response) {
   try {
-    const { phoneNumber, koiFishId, content } = req.body
-    if (!phoneNumber || !koiFishId || !content) {
+    const { phoneNumber, koiFishId, rating, content } = req.body
+    if (!phoneNumber || !koiFishId || !rating || !content) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }
 
     const dataRequest: CreateFishReview = {
       phoneNumber,
       koiFishId,
+      rating,
       content
     }
 

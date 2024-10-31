@@ -132,7 +132,7 @@ async function getKoiFishById(id: string) {
     })
     const fishReviews = await FishReview.findAll({
       where: { koiFishId: koiFish.id, isDeleted: false },
-      attributes: ["phoneNumber", "content"]
+      attributes: ["phoneNumber", "rating", "content"]
     })
     const supplier = await Supplier.findOne({
       where: { id: koiFish.supplierId, isDeleted: false },
@@ -142,9 +142,18 @@ async function getKoiFishById(id: string) {
       where: { id: koiFish.varietyId, isDeleted: false },
       attributes: ["name", "description"]
     })
+    let averageRating = 0
+    if (fishReviews.length > 0) {
+      let totalRating = 0
+      fishReviews.forEach((review) => {
+        totalRating += review.rating
+      })
+      averageRating = totalRating / fishReviews.length
+    }
     return {
       ...koiFish.toJSON(),
       type: "KOIFISH",
+      averageRating: averageRating,
       varitety: variety,
       elements: elements,
       imageUrls: imageUrls,

@@ -6,8 +6,8 @@ import orderService from "~/services/order.service"
 
 async function createOrder(req: Request, res: Response) {
   try {
-    const { phoneNumber, email, address, payMethod, orderDetails } = req.body
-    if (!phoneNumber || !payMethod || !orderDetails) {
+    const { phoneNumber, email, address, payMethod, shippingMethod, orderDetails } = req.body
+    if (!phoneNumber || !payMethod || !orderDetails || !shippingMethod || !email || !address) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }
 
@@ -15,6 +15,7 @@ async function createOrder(req: Request, res: Response) {
       phoneNumber,
       email,
       address,
+      shippingMethod,
       payMethod,
       orderDetails
     }
@@ -78,9 +79,10 @@ async function getOrders(req: Request, res: Response) {
     const pageIndex = parseInt(req.query.page_index as string) || 1
     const pageSize = parseInt(req.query.page_size as string) || 10
     const keyword = req.query.keyword as string
-    const phoneNumber = req.query.phoneNumber as string
-
-    const { orders, pagination } = await orderService.getOrders(pageIndex, pageSize, keyword, phoneNumber)
+    if (!keyword) {
+      return res.json(responseStatus.responseBadRequest400("Missing required fields"))
+    }
+    const { orders, pagination } = await orderService.getOrders(pageIndex, pageSize, keyword)
     return res.json(responseStatus.responseData200("Get orders successfully!", orders, pagination))
   } catch (error) {
     return res.json(error)

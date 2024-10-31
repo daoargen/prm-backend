@@ -22,6 +22,10 @@ export const Order = sequelize.define<OrderInstance>(tableName, {
     type: DataTypes.STRING,
     allowNull: false
   },
+  shippingMethod: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   status: {
     type: DataTypes.ENUM("PENDING", "TRANSIT", "COMPLETED", "CANCEL"),
     allowNull: false,
@@ -39,6 +43,7 @@ export interface OrderAttributes {
   phoneNumber: string
   email: string
   address: string
+  shippingMethod: string
   status: "PENDING" | "TRANSIT" | "COMPLETED" | "CANCEL"
   totalAmount: number
   isDeleted?: boolean

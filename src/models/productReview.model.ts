@@ -19,6 +19,10 @@ export const ProductReview = sequelize.define<ProductReviewInstance>(tableName, 
     type: DataTypes.UUID,
     allowNull: false
   },
+  rating: {
+    type: DataTypes.FLOAT,
+    allowNull: false
+  },
   content: {
     type: DataTypes.STRING,
     allowNull: false
@@ -35,6 +39,7 @@ export interface ProductReviewAttributes {
   id?: string
   phoneNumber: string
   productId: string
+  rating: number
   content: string
   isDeleted?: boolean
 }

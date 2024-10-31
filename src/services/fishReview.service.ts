@@ -46,6 +46,7 @@ async function createFishReview(newFishReview: CreateFishReview) {
     const createdFishReview = await FishReview.create({
       phoneNumber: newFishReview.phoneNumber,
       koiFishId: newFishReview.koiFishId,
+      rating: newFishReview.rating,
       content: newFishReview.content
     })
     return createdFishReview

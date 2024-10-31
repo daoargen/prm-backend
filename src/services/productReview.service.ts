@@ -45,6 +45,7 @@ async function createProductReview(newProductReview: CreateProductReview) {
   try {
     const createdProductReview = await ProductReview.create({
       phoneNumber: newProductReview.phoneNumber,
+      rating: newProductReview.rating,
       productId: newProductReview.productId,
       content: newProductReview.content
     })

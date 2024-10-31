@@ -43,12 +43,12 @@ const swaggerDocs = (app: Express, PORT: string) => {
         }
       ],
       servers: [
-        // {
-        //   url: `http://localhost:${PORT}`
-        // }
         {
-          url: `${process.env.DEPLOY_URL}`
+          url: `http://localhost:${PORT}`
         }
+        // {
+        //   url: `${process.env.DEPLOY_URL}`
+        // }
       ]
     },
     apis: ["./src/routes/*.ts"]

@@ -19,6 +19,10 @@ export const FishReview = sequelize.define<FishReviewInstance>(tableName, {
     type: DataTypes.UUID,
     allowNull: false
   },
+  rating: {
+    type: DataTypes.FLOAT,
+    allowNull: false
+  },
   content: {
     type: DataTypes.STRING,
     allowNull: false
@@ -35,6 +39,7 @@ export interface FishReviewAttributes {
   id?: string
   phoneNumber: string
   koiFishId: string
+  rating: number
   content: string
   isDeleted?: boolean
 }

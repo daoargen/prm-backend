@@ -29,11 +29,6 @@ const router = express.Router()
  *         schema:
  *           type: string
  *         description: Keyword to search
- *       - in: query
- *         name: phoneNumber
- *         schema:
- *           type: string
- *         description: phoneNumber to search
  *     responses:
  *       200:
  *         description: Returns a list of orders
@@ -86,6 +81,9 @@ router.get("/:id", orderController.getOrderById)
  *               payMethod:
  *                 type: string
  *                 description: Pay method of the customer
+ *               shippingMethod:
+ *                 type: string
+ *                 description: Shipping method of the customer
  *               orderDetails:
  *                 type: array
  *                 description: List of order details

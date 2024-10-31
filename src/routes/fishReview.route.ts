@@ -25,6 +25,9 @@ const router = express.Router()
  *               koiFishId:
  *                 type: string
  *                 description: Koi Fish Id
+ *               rating:
+ *                 type: integer
+ *                 description: rating review content
  *               content:
  *                 type: string
  *                 description: Fish Review content

@@ -162,6 +162,7 @@ export interface CreateOrder {
   phoneNumber: string
   email: string
   address: string
+  shippingMethod: string
   payMethod: "CARD" | "COD"
   orderDetails: CreateOrderDetail[]
 }
@@ -184,24 +185,28 @@ export interface UpdateOrderDetail {
 export interface CreateProductReview {
   phoneNumber: string
   productId: string
+  rating: number
   content: string
 }
 
 export interface UpdateProductReview {
   phoneNumber?: string
   productId?: string
+  rating: number
   content?: string
 }
 
 export interface CreateFishReview {
   phoneNumber: string
   koiFishId: string
+  rating: number
   content: string
 }
 
 export interface UpdateFishReview {
   phoneNumber?: string
   koiFishId?: string
+  rating?: number
   content?: string
 }
 
