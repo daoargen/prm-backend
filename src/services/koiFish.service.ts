@@ -105,6 +105,7 @@ async function getKoiFishes(pageIndex: number, pageSize: number, keyword: string
         return {
           ...koiFish.toJSON(),
           type: "KOIFISH",
+          averageRating: averageRating,
           elements: relatedElements,
           imageUrls: relatedImageUrls
         }

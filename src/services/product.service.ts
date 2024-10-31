@@ -71,15 +71,29 @@ async function getProducts(pageIndex: number, pageSize: number, keyword: string,
         where: { productId: productIds, isDeleted: false },
         attributes: ["id", "productId", "imageUrl"]
       })
+      const productReviews = await ProductReview.findAll({
+        where: { productId: productIds, isDeleted: false },
+        attributes: ["id", "productId", "rating"]
+      })
       const formatProducts = products.map((product) => {
         const relatedProductCategories = productCategories.filter((kfe) => kfe.productId === product.id)
         const relatedCategories = relatedProductCategories.map((kfe) => {
           return categories.find((category) => category.id === kfe.categoryId)
         })
+        const relatedProductReview = productReviews.filter((kfi) => kfi.productId === product.id)
+        let averageRating = 0
+        if (relatedProductReview.length > 0) {
+          let totalRating = 0
+          relatedProductReview.forEach((review) => {
+            totalRating += review.rating
+          })
+          averageRating = totalRating / relatedProductReview.length
+        }
         const relatedImageUrls = imageUrls.filter((kfi) => kfi.productId === product.id).map((kfi) => kfi.imageUrl)
         return {
           ...product.toJSON(),
           type: "PRODUCT",
+          averageRating: averageRating,
           categories: relatedCategories,
           imageUrls: relatedImageUrls
         }

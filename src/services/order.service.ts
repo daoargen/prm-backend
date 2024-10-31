@@ -217,10 +217,10 @@ async function getOrderById(id: string) {
 
 async function createOrder(newOrder: CreateOrder) {
   try {
+    // Các kiểm tra ban đầu
     if (!validatePhoneNumber(newOrder.phoneNumber)) {
       throw responseStatus.responseBadRequest400("Số điện thoại không hợp lệ.")
     }
-
     if (newOrder.shippingMethod.toLowerCase() !== "normal" && newOrder.shippingMethod.toLowerCase() !== "fast") {
       throw responseStatus.responseBadRequest400(
         "Phương thức vận chuyển không hợp lệ. Chỉ chấp nhận 'normal' hoặc 'fast'."
@@ -235,38 +235,36 @@ async function createOrder(newOrder: CreateOrder) {
       status: "PENDING",
       totalAmount: 0
     })
-    if (!createdOrder.id) {
-      throw responseStatus.responseBadRequest400("Tạo hoá đơn thất bại")
-    }
+
     if (!createdOrder.id) {
       throw responseStatus.responseBadRequest400("Tạo hoá đơn thất bại")
     }
 
-    // Duyệt qua từng orderDetail để kiểm tra
-    newOrder.orderDetails.map(async (orderDetail) => {
-      // Kiểm tra type
+    // Kiểm tra từng orderDetail
+    for (const orderDetail of newOrder.orderDetails) {
       if (orderDetail.type !== "KOIFISH" && orderDetail.type !== "PRODUCT") {
         throw responseStatus.responseBadRequest400(
           "Loại sản phẩm không hợp lệ. Chỉ chấp nhận 'KOIFISH' hoặc 'PRODUCT'."
         )
       }
 
-      // Kiểm tra koiFishId nếu type là KOIFISH
       if (orderDetail.type === "KOIFISH" && !orderDetail.koiFishId) {
         throw responseStatus.responseBadRequest400("Thiếu koiFishId cho sản phẩm loại KOIFISH.")
       }
+
       if (orderDetail.type === "KOIFISH" && orderDetail.koiFishId) {
         const koiFish = await KoiFish.findOne({ where: { id: orderDetail.koiFishId, isSold: true, isDeleted: false } })
-        if (!koiFish) {
-          throw responseStatus.responseNotFound404("Cá Koi đã bán")
+        if (koiFish) {
+          throw responseStatus.responseBadRequest400("Cá Koi đã bán")
         }
       }
 
-      // Kiểm tra productId nếu type là PRODUCT
       if (orderDetail.type === "PRODUCT" && !orderDetail.productId) {
         throw responseStatus.responseBadRequest400("Thiếu productId cho sản phẩm loại PRODUCT.")
       }
-    })
+    }
+
+    // Tính toán tổng tiền
     let totalAmount = 0
     await Promise.all(
       newOrder.orderDetails.map(async (orderDetail) => {
@@ -280,22 +278,20 @@ async function createOrder(newOrder: CreateOrder) {
         totalAmount += createdOrderDetail.totalPrice
       })
     )
-    if (createdOrder.shippingMethod.toLowerCase() == "normal") {
-      totalAmount += 30000
-    }
-    if (createdOrder.shippingMethod.toLowerCase() == "fast") {
-      totalAmount += 50000
-    }
+
+    // Phí vận chuyển
+    totalAmount += createdOrder.shippingMethod.toLowerCase() === "normal" ? 30000 : 0
+    totalAmount += createdOrder.shippingMethod.toLowerCase() === "fast" ? 50000 : 0
     createdOrder.totalAmount = totalAmount
 
     await createdOrder.save()
 
+    // Tạo payment
     const newPayment: createPayment = {
       orderId: createdOrder.id,
       amount: createdOrder.totalAmount,
       payMethod: newOrder.payMethod
     }
-
     await paymentService.createPayment(newPayment)
 
     return await getOrderById(createdOrder.id)

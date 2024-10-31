@@ -46,7 +46,6 @@ async function getOrderDetailById(id: string) {
 async function createOrderDetail(orderId: string, newOrderDetail: CreateOrderDetail) {
   try {
     let unitPrice = 0
-
     // Tìm unitPrice dựa trên type
     if (newOrderDetail.type === "KOIFISH" && newOrderDetail.koiFishId) {
       const koiFish = await KoiFish.findByPk(newOrderDetail.koiFishId)
@@ -65,7 +64,6 @@ async function createOrderDetail(orderId: string, newOrderDetail: CreateOrderDet
       product.stock -= newOrderDetail.quantity
       await product.save()
     } else {
-      // Xử lý trường hợp type không hợp lệ hoặc thiếu ID
       throw responseStatus.responseBadRequest400("Loại sản phẩm không hợp lệ hoặc thiếu ID sản phẩm.")
     }
 
@@ -77,9 +75,9 @@ async function createOrderDetail(orderId: string, newOrderDetail: CreateOrderDet
       koiFishId: newOrderDetail.koiFishId,
       productId: newOrderDetail.productId,
       type: newOrderDetail.type,
-      unitPrice: unitPrice, // Lưu unitPrice vào database
+      unitPrice: unitPrice,
       quantity: newOrderDetail.quantity,
-      totalPrice: totalPrice // Lưu totalPrice vào database
+      totalPrice: totalPrice
     })
 
     return createdOrderDetail
