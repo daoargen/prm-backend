@@ -35,13 +35,8 @@ async function getOrders(pageIndex: number, pageSize: number, keyword: string, s
     }
 
     if (status && status.trim() !== "") {
-      const validStatuses = ["PENDING", "TRANSIT", "CANCEL", "COMPLETED"]
       const inputStatus = status.trim().toUpperCase()
-      if (validStatuses.includes(inputStatus)) {
-        whereCondition.status = inputStatus
-      } else {
-        throw responseStatus.responseBadRequest400("Invalid order status")
-      }
+      whereCondition.status = inputStatus
     }
 
     const { count, rows: orders } = await Order.findAndCountAll({
@@ -72,6 +67,14 @@ async function getOrders(pageIndex: number, pageSize: number, keyword: string, s
         where: { id: koiFishIds, isDeleted: false },
         attributes: ["id", "name", "description", "size", "gender", "isSold", "price"]
       })
+      const relativeKoiFishImageUrls = await FishImageUrl.findAll({
+        where: { koiFishId: koiFishIds, isDeleted: false },
+        attributes: ["id", "koiFishId", "imageUrl"]
+      })
+      const relativeProductImageUrls = await ProductImageUrl.findAll({
+        where: { productId: productIds, isDeleted: false },
+        attributes: ["id", "productId", "imageUrl"]
+      })
 
       const payments = await Payment.findAll({
         where: { orderId: orderIds, isDeleted: false },
@@ -83,17 +86,25 @@ async function getOrders(pageIndex: number, pageSize: number, keyword: string, s
         const formatOrderDetail = relatedOrderDetail.map((orderDetail) => {
           if (orderDetail.type === "KOIFISH") {
             const koiFish = koiFishs.find((k) => k.id === orderDetail.koiFishId)
+            const koiFishImageUrls = relativeKoiFishImageUrls.filter((ki) => ki.koiFishId === koiFish?.id)
             return {
               ...orderDetail.toJSON(),
-              koiFish: koiFish,
+              koiFish: {
+                ...koiFish?.toJSON(),
+                imageUrls: koiFishImageUrls
+              },
               product: null
             }
           } else if (orderDetail.type === "PRODUCT") {
             const product = products.find((p) => p.id === orderDetail.productId)
+            const productImageUrls = relativeProductImageUrls.filter((pi) => pi.productId === product?.id)
             return {
               ...orderDetail.toJSON(),
               koifish: null,
-              product: product
+              product: {
+                ...product?.toJSON(),
+                imageUrls: productImageUrls
+              }
             }
           }
         })
@@ -221,7 +232,7 @@ async function createOrder(newOrder: CreateOrder) {
     }
 
     // Duyệt qua từng orderDetail để kiểm tra
-    newOrder.orderDetails.map((orderDetail) => {
+    newOrder.orderDetails.map(async (orderDetail) => {
       // Kiểm tra type
       if (orderDetail.type !== "KOIFISH" && orderDetail.type !== "PRODUCT") {
         throw responseStatus.responseBadRequest400(
@@ -232,6 +243,12 @@ async function createOrder(newOrder: CreateOrder) {
       // Kiểm tra koiFishId nếu type là KOIFISH
       if (orderDetail.type === "KOIFISH" && !orderDetail.koiFishId) {
         throw responseStatus.responseBadRequest400("Thiếu koiFishId cho sản phẩm loại KOIFISH.")
+      }
+      if (orderDetail.type === "KOIFISH" && orderDetail.koiFishId) {
+        const koiFish = await KoiFish.findOne({ where: { id: orderDetail.koiFishId, isSold: true, isDeleted: false } })
+        if (!koiFish) {
+          throw responseStatus.responseNotFound404("Cá Koi đã bán")
+        }
       }
 
       // Kiểm tra productId nếu type là PRODUCT
