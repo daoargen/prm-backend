@@ -91,6 +91,7 @@ async function getKoiFishes(pageIndex: number, pageSize: number, keyword: string
         const relatedImageUrls = imageUrls.filter((kfi) => kfi.koiFishId === koiFish.id).map((kfi) => kfi.imageUrl)
         return {
           ...koiFish.toJSON(),
+          type: "KOIFISH",
           elements: relatedElements,
           imageUrls: relatedImageUrls
         }

@@ -79,6 +79,7 @@ async function getProducts(pageIndex: number, pageSize: number, keyword: string,
         const relatedImageUrls = imageUrls.filter((kfi) => kfi.productId === product.id).map((kfi) => kfi.imageUrl)
         return {
           ...product.toJSON(),
+          type: "PRODUCT",
           categories: relatedCategories,
           imageUrls: relatedImageUrls
         }
