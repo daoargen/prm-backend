@@ -4,30 +4,26 @@ import responseStatus from "~/constants/responseStatus"
 import { CreateProduct, UpdateProduct } from "~/constants/type"
 import koiFishService from "~/services/koiFish.service"
 import productService from "~/services/product.service"
+import productKoifishService from "~/services/productKoifish.service"
 
 async function getProducts(req: Request, res: Response) {
   try {
     const pageIndex = parseInt(req.query.page_index as string) || 1
     const pageSize = parseInt(req.query.page_size as string) || 10
     const keyword = req.query.keyword as string
-    const type = (req.query.type as string).toLowerCase()
+    const type = (req.query.type as string) || ""
     const yob = parseInt(req.query.yob as string)
     const category = req.query.category as string
 
-    if (!type) {
-      return res.json(responseStatus.responseBadRequest400("Missing required fields"))
-    }
-
-    if (!type) {
-      return res.json(responseStatus.responseBadRequest400("Missing required fields"))
-    }
-    if (type === "product") {
+    if (type.toLowerCase() === "product") {
       const { products, pagination } = await productService.getProducts(pageIndex, pageSize, keyword, category)
       return res.json(responseStatus.responseData200("Get products successfully!", products, pagination))
-    }
-    if (type === "koifish") {
+    } else if (type.toLowerCase() === "koifish") {
       const { koiFishes, pagination } = await koiFishService.getKoiFishes(pageIndex, pageSize, keyword, yob)
       return res.json(responseStatus.responseData200("Get koi fish successfully!", koiFishes, pagination))
+    } else {
+      const { mixedData, pagination } = await productKoifishService.getMixedData(keyword)
+      return res.json(responseStatus.responseData200("Get mix data successfully!", mixedData, pagination))
     }
   } catch (error) {
     return res.json(error)

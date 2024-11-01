@@ -86,9 +86,7 @@ async function getKoiFishes(pageIndex: number, pageSize: number, keyword: string
         attributes: ["id", "koiFishId", "rating"]
       })
       const formatKoiFishs = koiFishes.map((koiFish) => {
-        // Lấy danh sách koiFishElement có koiFishId tương ứng
         const relatedKoiFishElements = koiFishElements.filter((kfe) => kfe.koiFishId === koiFish.id)
-        // Lấy danh sách element tương ứng từ relatedKoiFishElements
         const relatedElements = relatedKoiFishElements.map((kfe) => {
           return elements.find((element) => element.id === kfe.elementId)
         })
@@ -113,7 +111,6 @@ async function getKoiFishes(pageIndex: number, pageSize: number, keyword: string
       dataResponse = formatKoiFishs.map((koiFish: any) => formatModelDate(koiFish))
     }
 
-    // const dataResponse = koiFishes.map((koiFish) => formatModelDate(koiFish.toJSON()))
     const pagination = calculatePagination(count, pageSize, pageIndex)
 
     return { koiFishes: dataResponse, pagination }
