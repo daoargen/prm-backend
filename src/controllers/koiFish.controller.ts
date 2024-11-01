@@ -34,7 +34,8 @@ async function getKoiFishById(req: Request, res: Response) {
 
 async function createKoiFish(req: Request, res: Response) {
   try {
-    const { varietyId, name, description, gender, isSold, supplierId, price, size, elementIds, imageUrls } = req.body
+    const { varietyId, name, description, gender, isSold, supplierId, price, size, age, elementIds, imageUrls } =
+      req.body
     if (!varietyId || !name || !price || !supplierId) {
       return res.json(responseStatus.responseBadRequest400("Missing required fields"))
     }
@@ -48,6 +49,7 @@ async function createKoiFish(req: Request, res: Response) {
       supplierId,
       price,
       size,
+      age,
       elementIds,
       imageUrls
     }

@@ -23,6 +23,10 @@ export const KoiFish = sequelize.define<KoiFishInstance>(tableName, {
     type: DataTypes.STRING,
     allowNull: true
   },
+  age: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
   size: {
     type: DataTypes.INTEGER,
     allowNull: true
@@ -62,6 +66,7 @@ export interface KoiFishAttributes {
   varietyId: string
   name: string
   description: string | null
+  age: number | null
   size: number | null
   gender: "MALE" | "FEMALE" | null
   isSold: boolean

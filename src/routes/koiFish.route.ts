@@ -93,6 +93,9 @@ router.get("/:id", KoiFishController.getKoiFishById)
  *               size:
  *                 type: number
  *                 description: Koi fish size
+ *               age:
+ *                 type: number
+ *                 description: Koi fish age
  *               elementIds:
  *                 type: array
  *                 items:

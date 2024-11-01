@@ -187,7 +187,8 @@ async function createKoiFish(newKoiFish: CreateKoiFish) {
       isSold: newKoiFish.isSold,
       supplierId: newKoiFish.supplierId,
       price: newKoiFish.price,
-      size: newKoiFish.size
+      size: newKoiFish.size,
+      age: newKoiFish.age
     })
 
     if (!createdKoiFish.id) {

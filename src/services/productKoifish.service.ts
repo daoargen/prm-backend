@@ -65,11 +65,9 @@ async function getMixedData(keyword: string) {
       return 0
     })
 
-    // Xử lý dữ liệu Product và KoiFish
     const processedData = await Promise.all(
       combinedData.map(async (item) => {
         if (item.constructor.name === "Product") {
-          // Xử lý Product
           const relatedProductCategories = await ProductCategory.findAll({
             where: { productId: item.id, isDeleted: false },
             attributes: ["productId", "categoryId"]

@@ -85,6 +85,7 @@ export interface CreateKoiFish {
   supplierId: string
   price: number
   size: number | null
+  age: number | null
   elementIds: string[]
   imageUrls: string[]
 }
