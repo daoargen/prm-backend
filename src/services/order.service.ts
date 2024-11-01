@@ -227,19 +227,6 @@ async function createOrder(newOrder: CreateOrder) {
       )
     }
 
-    const createdOrder = await Order.create({
-      phoneNumber: newOrder.phoneNumber,
-      email: newOrder.email,
-      address: newOrder.address,
-      shippingMethod: newOrder.shippingMethod,
-      status: "PENDING",
-      totalAmount: 0
-    })
-
-    if (!createdOrder.id) {
-      throw responseStatus.responseBadRequest400("Tạo hoá đơn thất bại")
-    }
-
     // Kiểm tra từng orderDetail
     for (const orderDetail of newOrder.orderDetails) {
       if (orderDetail.type !== "KOIFISH" && orderDetail.type !== "PRODUCT") {
@@ -262,6 +249,19 @@ async function createOrder(newOrder: CreateOrder) {
       if (orderDetail.type === "PRODUCT" && !orderDetail.productId) {
         throw responseStatus.responseBadRequest400("Thiếu productId cho sản phẩm loại PRODUCT.")
       }
+    }
+
+    const createdOrder = await Order.create({
+      phoneNumber: newOrder.phoneNumber,
+      email: newOrder.email,
+      address: newOrder.address,
+      shippingMethod: newOrder.shippingMethod,
+      status: "PENDING",
+      totalAmount: 0
+    })
+
+    if (!createdOrder.id) {
+      throw responseStatus.responseBadRequest400("Tạo hoá đơn thất bại")
     }
 
     // Tính toán tổng tiền
