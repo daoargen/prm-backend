@@ -12,6 +12,7 @@ import { ProductImageUrl } from "~/models/productImageUrl.model"
 import { ProductReview } from "~/models/productReview.model"
 import { Variety } from "~/models/variety.model"
 import { calculatePagination } from "~/utils/calculatePagination.utilt"
+import { formatModelDate } from "~/utils/formatTimeModel.util"
 import { logNonCustomError } from "~/utils/logNonCustomError.util"
 
 async function getMixedData(keyword: string) {
@@ -79,10 +80,11 @@ async function getMixedData(keyword: string) {
             where: { id: categoryIds, isDeleted: false },
             attributes: ["id", "name", "description"]
           })
-          const relatedImageUrls = await ProductImageUrl.findAll({
+          const imageUrls = await ProductImageUrl.findAll({
             where: { productId: item.id, isDeleted: false },
             attributes: ["id", "productId", "imageUrl"]
           })
+          const relatedImageUrls = imageUrls.filter((kfi) => kfi.productId === item.id).map((kfi) => kfi.imageUrl)
           const relatedProductReview = await ProductReview.findAll({
             where: { productId: item.id, isDeleted: false },
             attributes: ["id", "productId", "rating"]
@@ -115,10 +117,11 @@ async function getMixedData(keyword: string) {
             where: { id: elementIds, isDeleted: false },
             attributes: ["id", "name", "imageUrl"]
           })
-          const relatedImageUrls = await FishImageUrl.findAll({
+          const imageUrls = await FishImageUrl.findAll({
             where: { koiFishId: item.id, isDeleted: false },
             attributes: ["id", "koiFishId", "imageUrl"]
           })
+          const relatedImageUrls = imageUrls.filter((kfi) => kfi.koiFishId === item.id).map((kfi) => kfi.imageUrl)
           const relatedFishReview = await FishReview.findAll({
             where: { koiFishId: item.id, isDeleted: false },
             attributes: ["id", "koiFishId", "rating"]
@@ -142,10 +145,12 @@ async function getMixedData(keyword: string) {
       })
     )
 
+    const dataResponse = processedData.map((koiFish: any) => formatModelDate(koiFish))
+
     const totalDataCount = combinedData.length
     const pagination = calculatePagination(totalDataCount, totalDataCount, 1)
 
-    return { mixedData: processedData, pagination }
+    return { mixedData: dataResponse, pagination }
   } catch (error) {
     logNonCustomError(error)
     throw error
